@@ -71,6 +71,16 @@ def repack(dest, model=None, preview=None, extra=None, shapes=None, drop_sample_
             zi.flag_bits |= 0x800
             zout.writestr(zi, blob)
 
+    # WFS validates a project by looking at the LAST bytes of the file: it must end
+    # with the literal marker "normal_watchface" (or "normal_honeyface"). Python's
+    # zipfile drops everything after the ZIP, so the marker is appended back,
+    # byte for byte as the original archives carry it.
+    with open(SAMPLE, "rb") as fh:
+        fh.seek(-20, os.SEEK_END)
+        tail = fh.read()
+    with open(dest, "ab") as fh:
+        fh.write(tail)
+
     print("wrote", dest, "%.1f KB" % (os.path.getsize(dest) / 1024))
     return dest
 

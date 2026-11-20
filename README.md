@@ -234,3 +234,19 @@ Contenido actual del proyecto generado:
 > WFS usando la tabla de [`wfs-assets/SPEC.md`](wfs-assets/SPEC.md). Si el proyecto abre
 > bien, el siguiente paso es extender el generador para crear también esos nodos
 > (`digitalClock`, `date`, `text`, `complication`).
+### El sello final del archivo `.wfs` (la clave del "Invalid project file")
+
+WFS **no** valida el proyecto leyendo el ZIP: mira los **últimos bytes del archivo**.
+`getProjectFileType()` lee el final del fichero y comprueba que termine con la cadena
+`normal_watchface` (o `normal_honeyface` para plantillas, y `encrypt_*` si está cifrado).
+Si no está, devuelve `abnormal` y la app muestra "Invalid project file."
+
+Los `.wfs` que genera WFS llevan por tanto un sello de 20 bytes **después** del ZIP:
+
+```
+\x05\x00\x00\x00normal_watchface
+```
+
+Python (`zipfile`) descarta todo lo que va detrás del ZIP al reempaquetar, y de ahí venía
+el error. `tools/repack_wfs.py` copia ese sello byte a byte del proyecto original y lo
+añade al final, así que el archivo generado pasa la validación.
