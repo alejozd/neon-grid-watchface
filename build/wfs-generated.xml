@@ -1,11 +1,11 @@
 <WatchFace width="450" height="450" clipShape="CIRCLE">
 	<Metadata key="CLOCK_TYPE" value="ANALOG"/>
 	<Scene backgroundColor="#ff000000">
-		<PartImage pivotX="0" pivotY="0" x="0" y="0" width="450" height="450" name="bg_d31c" alpha="255">
+		<PartImage pivotX="0" pivotY="0" x="0" y="0" width="450" height="450" name="bg_b8e6" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Image resource="neon_bg"/>
 		</PartImage>
-		<PartDraw pivotX="1.1912" pivotY="1.1912" x="0" y="0" width="450" height="450" name="gauge_battery_1a1c" alpha="255">
+		<PartDraw pivotX="1.1912" pivotY="1.1912" x="0" y="0" width="450" height="450" name="gauge_battery_fbcf" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Arc direction="CLOCKWISE" startAngle="246" endAngle="294" centerX="225" centerY="225" width="380.625" height="380.625">
 				<Stroke color="#3322e7ff" cap="ROUND" thickness="3.75"/>
@@ -15,7 +15,7 @@
 				<Stroke color="#ff22e7ff" cap="ROUND" thickness="3.75"/>
 			</Arc>
 		</PartDraw>
-		<PartDraw pivotX="1.1912" pivotY="1.1912" x="0" y="0" width="450" height="450" name="gauge_steps_cf95" alpha="255">
+		<PartDraw pivotX="1.1912" pivotY="1.1912" x="0" y="0" width="450" height="450" name="gauge_steps_42f5" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Arc direction="CLOCKWISE" startAngle="300" endAngle="340" centerX="225" centerY="225" width="380.625" height="380.625">
 				<Stroke color="#33ff2a6d" cap="ROUND" thickness="3.75"/>
@@ -32,29 +32,29 @@
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 			</SecondHand>
 		</AnalogClock>
-		<Group x="0" y="0" width="450" height="450" name="optimizedGroup_232c" alpha="255">
-			<PartImage x="63" y="185" width="21" height="8" name="lbl_bat_b316" alpha="255">
+		<Group x="0" y="0" width="450" height="450" name="optimizedGroup_e484" alpha="255">
+			<PartImage x="63" y="185" width="21" height="8" name="lbl_bat_92cd" alpha="255">
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Image resource="neon_lbl_bat"/>
 			</PartImage>
-			<PartImage x="72" y="254" width="21" height="8" name="lbl_bpm_99e6" alpha="255">
+			<PartImage x="72" y="254" width="21" height="8" name="lbl_bpm_c772" alpha="255">
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Image resource="neon_lbl_bpm"/>
 			</PartImage>
-			<PartImage x="327" y="200" width="36" height="8" name="lbl_pasos_1fd4" alpha="255">
+			<PartImage x="327" y="200" width="36" height="8" name="lbl_pasos_c9e2" alpha="255">
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Image resource="neon_lbl_pasos"/>
 			</PartImage>
-			<PartImage x="130" y="145" width="22" height="8" name="lbl_msg_3292" alpha="255">
+			<PartImage x="130" y="145" width="22" height="8" name="lbl_msg_5781" alpha="255">
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Image resource="neon_lbl_msg"/>
 			</PartImage>
-			<PartImage x="292" y="140" width="36" height="8" name="lbl_event_761a" alpha="255">
+			<PartImage x="292" y="140" width="36" height="8" name="lbl_event_edc9" alpha="255">
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Image resource="neon_lbl_event"/>
 			</PartImage>
 		</Group>
-		<PartText x="328" y="257" width="122" height="30" name="sec_55bf" alpha="255">
+		<PartText x="328" y="257" width="122" height="30" name="sec_170c" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="START" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="20" letterSpacing="0.04545" weight="NORMAL" slant="NORMAL" color="#ff22e7ff">
@@ -65,7 +65,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="0" y="238" width="306" height="90" name="time_8bb6" alpha="255">
+		<PartText x="0" y="238" width="306" height="90" name="time_f6e0" alpha="255">
 			<Text align="END" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="61" letterSpacing="0.02121" weight="NORMAL" slant="NORMAL" color="#ff22e7ff">
 					<Template>
@@ -76,7 +76,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="324" y="288" width="126" height="20" name="ampm_d56e" alpha="255">
+		<PartText x="324" y="288" width="126" height="20" name="ampm_0033" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="START" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="14" letterSpacing="0.02" weight="NORMAL" slant="NORMAL" color="#ff22e7ff">
@@ -87,7 +87,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="0" y="339" width="450" height="35" name="date_8d2a" alpha="255">
+		<PartText x="0" y="339" width="450" height="35" name="date_4bd9" alpha="255">
 			<Text align="CENTER" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="24" letterSpacing="0.046150000000000004" weight="NORMAL" slant="NORMAL" color="#ffff2a6d">
 					<Template>
@@ -99,7 +99,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="0" y="53" width="450" height="41" name="temp_e78b" alpha="255">
+		<PartText x="0" y="53" width="450" height="41" name="temp_14ca" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="CENTER" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="28" letterSpacing="0.03333" weight="NORMAL" slant="NORMAL" color="#ff22e7ff">
@@ -110,7 +110,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="0" y="95" width="450" height="24" name="cond_6ee7" alpha="255">
+		<PartText x="0" y="95" width="450" height="24" name="cond_fd0b" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="CENTER" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="16" letterSpacing="0.01667" weight="NORMAL" slant="NORMAL" color="#ff8fb6c9">
@@ -121,7 +121,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="0" y="122" width="450" height="22" name="tminmax_c0e8" alpha="255">
+		<PartText x="0" y="122" width="450" height="22" name="tminmax_9017" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="CENTER" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="15" letterSpacing="0.01875" weight="NORMAL" slant="NORMAL" color="#ff8fb6c9">
@@ -133,7 +133,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="124" y="156" width="326" height="41" name="msg_v_a279" alpha="255">
+		<PartText x="124" y="156" width="326" height="41" name="msg_v_c6e6" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="START" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="28" weight="NORMAL" slant="NORMAL" color="#ffff2a6d">
@@ -144,7 +144,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="49" y="193" width="401" height="41" name="bat_v_7f1f" alpha="255">
+		<PartText x="49" y="193" width="401" height="41" name="bat_v_51fc" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="START" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="28" weight="NORMAL" slant="NORMAL" color="#ff22e7ff">
@@ -155,7 +155,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="68" y="260" width="383" height="44" name="hr_v_dade" alpha="255">
+		<PartText x="68" y="260" width="383" height="44" name="hr_v_5f19" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="START" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="30" weight="NORMAL" slant="NORMAL" color="#ffff2a6d">
@@ -166,7 +166,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="0" y="211" width="379" height="35" name="steps_v_2b6c" alpha="255">
+		<PartText x="0" y="211" width="379" height="35" name="steps_v_4885" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="END" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="24" weight="NORMAL" slant="NORMAL" color="#ff22e7ff">
@@ -177,7 +177,7 @@
 				</Font>
 			</Text>
 		</PartText>
-		<PartText x="0" y="241" width="379" height="20" name="steps_pct_58b5" alpha="255">
+		<PartText x="0" y="241" width="379" height="20" name="steps_pct_fd46" alpha="255">
 			<Variant mode="AMBIENT" target="alpha" value="0"/>
 			<Text align="END" ellipsis="FALSE">
 				<Font family="SplineSansMono-Bold" size="14" weight="NORMAL" slant="NORMAL" color="#ff8fb6c9">
@@ -188,43 +188,149 @@
 				</Font>
 			</Text>
 		</PartText>
-		<Group x="0" y="0" width="450" height="450" name="optimizedGroup_702f" alpha="255">
-			<PartDraw x="184" y="49" width="84" height="51" name="tap_weather_7e26" alpha="255">
+		<ComplicationSlot slotId="0" displayName="event_slot" isCustomizable="TRUE" supportedTypes="SHORT_TEXT" x="246" y="146" width="146" height="51" name="event_slot_0" alpha="255">
+			<Variant mode="AMBIENT" target="alpha" value="0"/>
+			<DefaultProviderPolicy defaultSystemProvider="NEXT_EVENT" defaultSystemProviderType="SHORT_TEXT"/>
+			<BoundingBox x="0" y="0" width="146" height="51"/>
+			<Complication type="SHORT_TEXT">
+				<Condition>
+					<Expressions>
+						<Expression name="shortText">
+							<![CDATA[[COMPLICATION.TITLE] == null && [COMPLICATION.MONOCHROMATIC_IMAGE] == null]]>
+						</Expression>
+						<Expression name="shortTextIcon">
+							<![CDATA[[COMPLICATION.TITLE] == null && [COMPLICATION.MONOCHROMATIC_IMAGE] != null]]>
+						</Expression>
+						<Expression name="shortTextTitle">
+							<![CDATA[[COMPLICATION.TITLE] != null && [COMPLICATION.MONOCHROMATIC_IMAGE] == null]]>
+						</Expression>
+					</Expressions>
+					<Compare expression="shortText">
+						<PartText x="0" y="23" width="146" height="25" name="event_text_a162" alpha="255">
+							<Variant mode="AMBIENT" target="alpha" value="0"/>
+							<Text align="CENTER" ellipsis="TRUE">
+								<Font family="SplineSansMono-Bold" size="15" weight="NORMAL" slant="NORMAL" color="#ffa24bff">
+									<Template>
+										%s
+										<Parameter expression="[COMPLICATION.TEXT] != null ? [COMPLICATION.TEXT] : [COMPLICATION.TITLE]"/>
+									</Template>
+								</Font>
+							</Text>
+						</PartText>
+					</Compare>
+					<Compare expression="shortTextIcon">
+						<PartText x="0" y="2" width="146" height="21" name="event_title_05d6" alpha="255">
+							<Variant mode="AMBIENT" target="alpha" value="0"/>
+							<Text align="CENTER" ellipsis="TRUE">
+								<Font family="SplineSansMono-Bold" size="11" weight="NORMAL" slant="NORMAL" color="#ff8fb6c9">
+									<Template>
+										%s
+										<Parameter expression="[COMPLICATION.TITLE]"/>
+									</Template>
+								</Font>
+							</Text>
+						</PartText>
+						<PartText x="0" y="23" width="146" height="25" name="event_text_a73b" alpha="255">
+							<Variant mode="AMBIENT" target="alpha" value="0"/>
+							<Text align="CENTER" ellipsis="TRUE">
+								<Font family="SplineSansMono-Bold" size="15" weight="NORMAL" slant="NORMAL" color="#ffa24bff">
+									<Template>
+										%s
+										<Parameter expression="[COMPLICATION.TEXT] != null ? [COMPLICATION.TEXT] : [COMPLICATION.TITLE]"/>
+									</Template>
+								</Font>
+							</Text>
+						</PartText>
+					</Compare>
+					<Compare expression="shortTextTitle">
+						<PartText x="0" y="23" width="146" height="25" name="event_text_101b" alpha="255">
+							<Variant mode="AMBIENT" target="alpha" value="0"/>
+							<Text align="CENTER" ellipsis="TRUE">
+								<Font family="SplineSansMono-Bold" size="15" weight="NORMAL" slant="NORMAL" color="#ffa24bff">
+									<Template>
+										%s
+										<Parameter expression="[COMPLICATION.TEXT] != null ? [COMPLICATION.TEXT] : [COMPLICATION.TITLE]"/>
+									</Template>
+								</Font>
+							</Text>
+						</PartText>
+						<PartText x="0" y="2" width="146" height="21" name="event_title_ff14" alpha="255">
+							<Variant mode="AMBIENT" target="alpha" value="0"/>
+							<Text align="CENTER" ellipsis="TRUE">
+								<Font family="SplineSansMono-Bold" size="11" weight="NORMAL" slant="NORMAL" color="#ff8fb6c9">
+									<Template>
+										%s
+										<Parameter expression="[COMPLICATION.TITLE]"/>
+									</Template>
+								</Font>
+							</Text>
+						</PartText>
+					</Compare>
+					<Default>
+						<PartText x="0" y="23" width="146" height="25" name="event_text_5782" alpha="255">
+							<Variant mode="AMBIENT" target="alpha" value="0"/>
+							<Text align="CENTER" ellipsis="TRUE">
+								<Font family="SplineSansMono-Bold" size="15" weight="NORMAL" slant="NORMAL" color="#ffa24bff">
+									<Template>
+										%s
+										<Parameter expression="[COMPLICATION.TEXT] != null ? [COMPLICATION.TEXT] : [COMPLICATION.TITLE]"/>
+									</Template>
+								</Font>
+							</Text>
+						</PartText>
+						<PartText x="0" y="2" width="146" height="21" name="event_title_e9f7" alpha="255">
+							<Variant mode="AMBIENT" target="alpha" value="0"/>
+							<Text align="CENTER" ellipsis="TRUE">
+								<Font family="SplineSansMono-Bold" size="11" weight="NORMAL" slant="NORMAL" color="#ff8fb6c9">
+									<Template>
+										%s
+										<Parameter expression="[COMPLICATION.TITLE]"/>
+									</Template>
+								</Font>
+							</Text>
+						</PartText>
+					</Default>
+				</Condition>
+			</Complication>
+			<Complication type="EMPTY"/>
+		</ComplicationSlot>
+		<Group x="0" y="0" width="450" height="450" name="optimizedGroup_5cce" alpha="255">
+			<PartDraw x="184" y="49" width="84" height="51" name="tap_weather_cf72" alpha="255">
 				<Launch target="com.samsung.android.watch.weather"/>
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Ellipse x="0" y="0" width="84" height="51">
 					<Fill color="#02000000"/>
 				</Ellipse>
 			</PartDraw>
-			<PartDraw x="116" y="150" width="66" height="53" name="tap_msg_6e97" alpha="255">
+			<PartDraw x="116" y="150" width="66" height="53" name="tap_msg_a364" alpha="255">
 				<Launch target="com.whatsapp"/>
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Ellipse x="0" y="0" width="66" height="53">
 					<Fill color="#02000000"/>
 				</Ellipse>
 			</PartDraw>
-			<PartDraw x="41" y="193" width="79" height="49" name="tap_battery_7af0" alpha="255">
+			<PartDraw x="41" y="193" width="79" height="49" name="tap_battery_852f" alpha="255">
 				<Launch target="BATTERY_STATUS"/>
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Ellipse x="0" y="0" width="79" height="49">
 					<Fill color="#02000000"/>
 				</Ellipse>
 			</PartDraw>
-			<PartDraw x="56" y="255" width="71" height="49" name="tap_heart_f899" alpha="255">
+			<PartDraw x="56" y="255" width="71" height="49" name="tap_heart_efd7" alpha="255">
 				<Launch target="com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.heartrate.view.HeartRateActivity"/>
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Ellipse x="0" y="0" width="71" height="49">
 					<Fill color="#02000000"/>
 				</Ellipse>
 			</PartDraw>
-			<PartDraw x="306" y="214" width="79" height="49" name="tap_steps_f83c" alpha="255">
+			<PartDraw x="306" y="214" width="79" height="49" name="tap_steps_91fb" alpha="255">
 				<Launch target="com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.steps.view.StepsActivity"/>
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Ellipse x="0" y="0" width="79" height="49">
 					<Fill color="#02000000"/>
 				</Ellipse>
 			</PartDraw>
-			<PartDraw x="137" y="330" width="178" height="43" name="tap_date_f3d0" alpha="255">
+			<PartDraw x="137" y="330" width="178" height="43" name="tap_date_88e9" alpha="255">
 				<Launch target="com.samsung.android.calendar"/>
 				<Variant mode="AMBIENT" target="alpha" value="0"/>
 				<Ellipse x="0" y="0" width="178" height="43">

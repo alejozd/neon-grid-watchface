@@ -13,8 +13,9 @@ Repositorio: <https://github.com/alejozd/neon-grid-watchface> (público, rama `m
 Hay una **carátula real, instalada y funcionando en el reloj** (formato WFF,
 APK firmado, compilada sin Gradle). Y hay un **proyecto de Watch Face Studio
 completo y verificado**: fondo, agujas, arcos-medidor, etiquetas, todos los
-textos de datos y las zonas táctiles; renderizado y validado con el modo de
-prueba automático de WFS. Solo falta la **ranura de complicación de evento**.
+textos de datos, la ranura de complicación de evento y las zonas táctiles;
+renderizado y validado con el modo de prueba automático de WFS y con el XML WFF
+que genera al compilar. Solo falta probarlo en el reloj con **Run on Device**.
 
 ---
 
@@ -78,7 +79,7 @@ adb -s <serial> install -r build\NeonGrid-wearos5.apk
 
 ---
 
-## 3. Proyecto de Watch Face Studio — COMPLETO SALVO LA RANURA DE EVENTO
+## 3. Proyecto de Watch Face Studio — COMPLETO Y VERIFICADO
 
 ### Qué hay
 `wfs-project/NeonGrid.wfs` se abre en WFS 1.9.9 sin errores y **renderiza la
@@ -96,6 +97,11 @@ arriba:
   `lbl_event` (los PNG de `design/out/labels`).
 - Datos: `time` (HH:MM 12 h), `sec`, `ampm`, `date`, `temp`, `cond`, `tminmax`,
   `msg_v`, `bat_v`, `hr_v`, `steps_v`, `steps_pct`.
+- `event_slot` — ranura de complicación `line`, caja 246,146,146,51, proveedor
+  por defecto `NEXT_EVENT`, dos líneas: título (hora del evento, `#8FB6C9`,
+  11 px) y texto (nombre, `#A24BFF`, 15 px). WFS la compila a
+  `<ComplicationSlot supportedTypes="SHORT_TEXT">` con tres `<Compare>`
+  (sin título, con icono, con título) y `<Default>`.
 - Seis zonas táctiles invisibles (`drawEllipse` al 1 % de alfa) con `<Launch>` a
   los mismos destinos verificados en el reloj.
 
@@ -104,16 +110,8 @@ Capturas del render real de WFS: `build/wfs-render.png` (normal) y
 `build/wfs-generated.xml`.
 
 Valores por defecto del modo de prueba (los del propio WFS): 10:08:32, 25 °C,
-despejado, batería 100 %, 3457 pasos (34 %), 89 ppm, 0 notificaciones.
-
-### Qué falta
-La **ranura de complicación de evento** (caja 262..418 × 156..210 de 480, o sea
-245..392 × 146..197 a 450). El nodo `complicationSlot` es el más complejo del
-modelo: guarda `complicationTypes` con un árbol de elementos propio por tipo de
-complicación (`shortText`, `longText`, …), cada uno con sus textos, iconos y
-acciones. Hay que clonarlo de `Info_clocks.wfs`/`Outdoor_activity.wfs` y
-reescribir sus nodos internos (fuente, tamaño, color) con las mismas utilidades
-que el resto de capas.
+despejado, batería 100 %, 3457 pasos (34 %), 89 ppm, 0 notificaciones, evento a
+las 11:00.
 
 ### Cómo se genera
 ```powershell
@@ -128,8 +126,11 @@ bueno es el que produce `repack_wfs.py`.
 
 El modelo se construye por *cirugía de plantillas*: los nodos `text` y
 `progressBar` se clonan de `Weather_health_D_C.wfs`, la escena, el fondo, las
-agujas y la zona táctil de `Minimal_classic_W_B.wfs`, y se reescriben geometría,
-fuente, colores y expresiones. Nada de eso se escribe a mano desde cero.
+agujas y la zona táctil de `Minimal_classic_W_B.wfs`, y la ranura de
+complicación de `Large_letters_D_C.wfs` (es la única de ejemplo con una
+disposición de dos líneas). Después se reescriben geometría, fuente, colores,
+expresiones y el grafo de ids (`reid_slot()` vuelve a enlazar `clipper` y los
+`linkedElementId` de `categories.shortText/shortTitle/icon`).
 
 ### Referencias de coordenadas
 `wfs-assets/SPEC.md` tiene la tabla completa de posiciones **a 480×480**.
@@ -288,6 +289,25 @@ El nodo `analogHandHour` de `Minimal_classic_W_B.wfs` trae `color` **negro**
 (es la variante AOD): WFS exporta `<HourHand tintColor="#ff000000"/>` y la aguja
 desaparece. Hay que forzar blanco (`#FFFFFFFF` = sin teñir) al clonar las tres.
 
+### 4.11 Anatomía de un `complicationSlot`
+El nodo más complejo del modelo. Lo que hay que respetar:
+
+- `child` — los elementos "vivos" (los que se ven en el editor) y **el grafo de
+  referencias**: `categories.shortText/shortTitle/icon.properties.linkedElementId`
+  apuntan al `id` del hijo que pinta cada campo, y `clipper` apunta al hijo con
+  `complicationField: "clipper"` (el marco). Si se regeneran ids hay que
+  reenlazar las dos cosas (`reid_slot()` lo hace).
+- `complicationTypes.<tipo>.layouts.<layout>.elements` — plantillas por
+  disposición; cada elemento lleva `complicationField`:
+  `clipper`, `icon`, `shortText`, `shortTitle`. WFS elige una u otra según
+  `<Expression>`/`<Compare>` (¿hay título?, ¿hay imagen monocroma?).
+- `categories.complicationSlotPreview` — proveedor y disposición de la preview
+  (`NEXT_EVENT` es un proveedor de texto corto válido).
+- La plantilla útil es `Large_letters_D_C.wfs` → `Line Complication`: es la
+  única con disposición de dos líneas (`shortTextTitle` = texto + título).
+- Ojo con los elementos del ejemplo sin `complicationField`: si se mapean al
+  texto principal, el XML sale con dos `<PartText>` idénticos superpuestos.
+
 ---
 
 ## 5. Entorno y rutas
@@ -317,22 +337,20 @@ Notas de entorno:
 
 ## 6. Siguiente paso concreto (para el próximo chat)
 
-1. **Añadir la ranura de complicación de evento** al generador del `.wfs`
-   (lo único que falta). Clonar el `complicationSlot` de `Info_clocks.wfs`,
-   ponerle la caja 245,146,147,51 a 450 y reescribir sus nodos internos con las
-   mismas utilidades (`tidy_text`, `set_color`, `set_geom`). Comprobar con
-   `tools\test_wfs.ps1` que `status` sigue en `success` y que el XML lleva
-   `<ComplicationSlot>`.
+1. **Probar en el reloj** con *Run on Device* (o `--build` para sacar el AAB) y
+   comparar con la carátula WFF ya instalada: mismos datos, mismos toques, misma
+   posición. Es lo único que no se puede comprobar sin el reloj.
 2. (Opcional) Afinar el Always-On: la fecha sale en magenta sobre negro; para
    OLED conviene un gris tenue. WFS no tiene color por modo, así que habría que
    duplicar el nodo con `visibleOnAOD` complementario.
-3. Probar en el reloj con **Run on Device** y comparar con la carátula WFF ya
-   instalada (mismos toques, mismos datos).
+3. (Opcional) La ranura de evento usa `NEXT_EVENT` como proveedor por defecto; en
+   el reloj se puede cambiar por cualquier proveedor de texto corto.
 
 Regla de trabajo que ha funcionado: **un cambio, una prueba**. Ahora la prueba es
 barata: `python tools\repack_wfs.py` + `tools\test_wfs.ps1` y mirar
-`build/wfs-test/NeonGrid.preview.png` y `testmode-summary.json`. Ante un fallo de
-apertura, `%APPDATA%\WatchFaceStudio\dump\renderer.log`.
+`build/wfs-test/NeonGrid.preview.png`, `NeonGrid.aod.png`,
+`NeonGrid.xml` y `testmode-summary.json`. Ante un fallo de apertura,
+`%APPDATA%\WatchFaceStudio\dump\renderer.log`.
 
 ---
 
@@ -367,4 +385,4 @@ los proyectos de ejemplo, son la fuente de todo lo de la sección 4):
 | `debug_app_context.py <texto> [radio]` | imprime el código alrededor de un literal |
 
 La carátula del reloj está terminada y funcionando. El proyecto de WFS renderiza
-la esfera entera; solo le falta la ranura de complicación de evento.
+la esfera entera y compila a WFF; falta probarlo en el reloj.

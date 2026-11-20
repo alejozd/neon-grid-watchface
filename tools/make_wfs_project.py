@@ -443,6 +443,120 @@ def hand_crop(geo):
     }
 
 
+# ---------------------------------------------------------------------------
+# event complication slot
+# ---------------------------------------------------------------------------
+# A complicationSlot is the heaviest node in the model: `complicationTypes`
+# holds one template list per complication type and per layout, and the
+# `categories.shortText/shortTitle/icon` categories point (linkedElementId) at
+# the two or three "live" elements in `child`. The template is the `line` slot
+# of Large_letters_D_C.wfs, which is the only sample with a two-line layout.
+SLOT_SAMPLE = os.path.join(SAMPLES, "Large_letters_D_C.wfs")
+SLOT_NAME = "Line Complication"
+EVENT_BOX = (262, 156, 156, 54)      # design space, same as the WFF slot
+
+
+def reid_slot(slot):
+    """Unique ids everywhere, then relink clipper and per-field references."""
+    reid(slot)
+    for layout in slot["complicationTypes"]["shortText"]["layouts"].values():
+        for element in layout.get("elements") or []:
+            reid(element)
+    by_field = {}
+    for child in slot.get("child") or []:
+        by_field[child.get("complicationField")] = child["id"]
+    slot["clipper"] = by_field.get("clipper", "")
+    for field, cat in (slot.get("categories") or {}).items():
+        props = (cat or {}).get("properties") or {}
+        if "linkedElementId" in props:
+            props["linkedElementId"]["value"] = by_field.get(field, "")
+
+
+def build_event_slot(layout, palette):
+    with zipfile.ZipFile(SLOT_SAMPLE) as z:
+        model = json.loads(z.read("honeyface.json").decode("utf-8"))
+    tpl = find_named(model["scene"][0]["child"], SLOT_NAME)
+    if tpl is None:
+        raise SystemExit("template slot not found: " + SLOT_NAME)
+
+    slot = json.loads(json.dumps(tpl))
+    x, y, w, h = [round(v * SCALE, 3) for v in EVENT_BOX]
+    set_geom(slot, x, y, w, h)
+    slot["name"] = "event_slot"
+    slot["visible"] = True
+    slot["visibleOnAOD"] = False
+    slot["applyThemeColor"] = False
+
+    # two lines: title (dim, small) over the event text (violet)
+    text_tpl = find_named([c for c in slot["child"]
+                           if c.get("complicationField") == "shortText"], "Steps")
+    title_tpl = None
+    for lay in slot["complicationTypes"]["shortText"]["layouts"].values():
+        for element in lay.get("elements") or []:
+            if element.get("complicationField") == "shortTitle":
+                title_tpl = element
+    if text_tpl is None or title_tpl is None:
+        raise SystemExit("slot template lacks the text/title elements")
+
+    def line(source, field, box, size, color, name):
+        node = json.loads(json.dumps(source))
+        reid(node)
+        node["name"] = name
+        node["complicationField"] = field
+        node["visible"] = True
+        node["visibleOnAOD"] = False
+        node["applyThemeColor"] = False
+        lx, ly, lw, lh = [round(v * SCALE, 3) for v in box]
+        set_geom(node, lx, ly, lw, lh)
+        tidy_text(node, round(size * SCALE, 3), "center", color)
+        return node
+
+    title = line(title_tpl, "shortTitle", (0, 2, w / SCALE, 22),
+                 12, palette["dim"], "event_title")
+    text = line(text_tpl, "shortText", (0, 24, w / SCALE, 27),
+                16, palette["violet"], "event_text")
+
+    # the slot bound rectangle comes first, then the two texts (no icon: the
+    # "EVENT" word is already baked into the background)
+    bound = [c for c in slot["child"] if c.get("complicationField") == "clipper"][0]
+    bound = json.loads(json.dumps(bound))
+    reid(bound)
+    slot["child"] = [bound, title, text]
+    set_geom(bound, 0, 0, w, h)
+
+    # every layout shows the same two lines (icon variants drop the icon)
+    type_def = slot["complicationTypes"]["shortText"]
+    for lname, lay in type_def["layouts"].items():
+        keeps = []
+        for element in lay.get("elements") or []:
+            field = element.get("complicationField")
+            if field == "clipper":
+                keeps.append(json.loads(json.dumps(bound)))
+            elif field == "shortTitle":
+                keeps.append(json.loads(json.dumps(title)))
+            elif field == "shortText":
+                keeps.append(json.loads(json.dumps(text)))
+            # icons are dropped; anything else (the sample carries an extra,
+            # unbound text used for its preview) would duplicate a line
+        for element in keeps:
+            reid(element)
+        lay["elements"] = keeps
+        lay["activated"] = True
+    type_def["activated"] = True
+    slot["complicationTypeOrder"] = ["shortText"]
+    slot["fixedComplicationType"] = "shortText"
+
+    preview = slot["categories"]["complicationSlotPreview"]["properties"]
+    preview["selectedComplicationType"]["value"] = "shortText"
+    preview["layout"] = {"value": "shortTextTitle", "type": "shortText"}
+    preview["defaultProvider"]["value"] = "NEXT_EVENT"
+    preview["fixedProvider"]["value"] = "NEXT_EVENT"
+    preview["isFixed"]["value"] = False
+
+    reid_slot(slot)
+    return slot
+
+
 def load_layout():
     with open(os.path.join(DESIGN, "layout.json"), encoding="utf-8") as fh:
         return json.load(fh)["layout"]
@@ -519,10 +633,11 @@ def build_model():
     gauges = build_gauges(gauge_tpl, palette)
     labels = build_labels(bg_tpl, labels_json)
     texts = build_texts(text_tpl, layout, palette)
+    event_slot = build_event_slot(layout, palette)
     taps = build_tap_zones(touch_tpl)
 
-    # z-order: background, meters, hands, labels, data, tap zones
-    scene["child"] = [bg] + gauges + [clock] + labels + texts + taps
+    # z-order: background, meters, hands, labels, data, event slot, tap zones
+    scene["child"] = [bg] + gauges + [clock] + labels + texts + [event_slot] + taps
     scene["name"] = "Root"
 
     # every container must agree with the canvas, otherwise WFS reports
