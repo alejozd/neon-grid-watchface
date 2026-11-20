@@ -250,3 +250,10 @@ Los `.wfs` que genera WFS llevan por tanto un sello de 20 bytes **después** del
 Python (`zipfile`) descarta todo lo que va detrás del ZIP al reempaquetar, y de ahí venía
 el error. `tools/repack_wfs.py` copia ese sello byte a byte del proyecto original y lo
 añade al final, así que el archivo generado pasa la validación.
+---
+
+## 10. Continuar el trabajo (traspaso)
+
+El estado completo del proyecto, los hallazgos del formato `.wfs` y el siguiente
+paso concreto están en **[`docs/HANDOFF.md`](docs/HANDOFF.md)**: léelo antes de
+retomar el trabajo en otra sesión.
