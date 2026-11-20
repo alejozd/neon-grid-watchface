@@ -114,9 +114,10 @@ def build_model():
         h["name"] = key
         h["visible"] = True
         h["visibleOnAOD"] = typ != "analogHandSec"
-        set_geom(h, int(round(g["x"] * SCALE)), int(round(g["y"] * SCALE)),
-                 max(1, int(round(g["w"] * SCALE))), max(1, int(round(g["h"] * SCALE))),
-                 pivot=(g["pivotX"], g["pivotY"]))
+        # WFS expects hand images that span the whole canvas with the pivot at the
+        # dial centre (the samples use a 40x450 image for a 450 canvas), not the
+        # cropped hand + fractional pivot that the WFF document uses.
+        set_geom(h, 0, 0, CANVAS, CANVAS, pivot=(0.5, 0.5))
         set_image(h, fname)
         clock["child"].append(h)
 

@@ -127,12 +127,12 @@ if __name__ == "__main__":
             "neon_bg.png": load_resized(os.path.join(ROOT, "design", "out", "bg.png"),
                                         (CANVAS, CANVAS)),
         }
-        for fname, src, key in (("neon_hand_hour.png", "hand_hour.png", "hour"),
-                                ("neon_hand_minute.png", "hand_minute.png", "minute"),
-                                ("neon_hand_second.png", "hand_second.png", "second")):
-            g = hands[key]
-            size = (max(1, int(round(g["w"] * SCALE))), max(1, int(round(g["h"] * SCALE))))
-            art[fname] = load_resized(os.path.join(ROOT, "design", "out", src), size)
+        # full-canvas hands (exported by tools/export_wfs_assets.py)
+        for fname, src in (("neon_hand_hour.png", "hand_hour_480.png"),
+                           ("neon_hand_minute.png", "hand_minute_480.png"),
+                           ("neon_hand_second.png", "hand_second_480.png")):
+            art[fname] = load_resized(os.path.join(ROOT, "wfs-assets", src),
+                                      (CANVAS, CANVAS))
 
         repack(os.path.join(out_dir, "NeonGrid.wfs"),
                model=model, preview=preview, extra=art, shapes=shapes)
