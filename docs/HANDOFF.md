@@ -73,6 +73,7 @@ abajo.
 | Pulso | `com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.heartrate.view.HeartRateActivity` | Pantalla de pulso con el botón **Medir** |
 | Pasos | `com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.steps.view.StepsActivity` | Pantalla de pasos |
 | Fecha | `com.samsung.android.calendar` | Calendario (día) |
+| Hora mundial | `com.samsung.android.watch.worldclock/com.samsung.android.watch.worldclock.activity.WorldClockMainActivity` | App de reloj mundial (consultar otras ciudades) |
 
 Notas: los atajos oficiales `HEALTH_HEART_RATE` y `CALENDAR` **no funcionan** en
 este reloj y `WEATHER` abría Play Store. El formato `paquete/actividad` sí

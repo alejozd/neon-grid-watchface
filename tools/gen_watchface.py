@@ -279,6 +279,11 @@ TAP_TARGETS = [
     (60, 272, 76, 52, "com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.heartrate.view.HeartRateActivity"),  # heart rate (screen with the "Medir" button)
     (146, 352, 190, 46, "com.samsung.android.calendar"),       # date
     (326, 228, 84, 52, "com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.steps.view.StepsActivity"),  # steps
+    # world clock line: opens the watch's world clock app (package/activity, the
+    # form that works on this device). Verified launcher activity with
+    # `cmd package resolve-activity --brief com.samsung.android.watch.worldclock`
+    (163, 384, 154, 32,
+     "com.samsung.android.watch.worldclock/com.samsung.android.watch.worldclock.activity.WorldClockMainActivity"),
 ]
 
 

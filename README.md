@@ -84,6 +84,7 @@ Para el chip de eventos: mantén pulsada la esfera → **Editar** → toca **EVE
 | BPM | Medidor de ritmo cardíaco de Samsung Health |
 | Pasos | Pantalla de pasos de Samsung Health |
 | Fecha | Calendario |
+| Hora mundial | App de reloj mundial (para ver otras ciudades) |
 | Evento | App del calendario (vía complicación) |
 ## 3. Paletas
 

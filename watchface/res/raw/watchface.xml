@@ -445,6 +445,13 @@
         <Fill color="#02000000"/>
       </Rectangle>
     </PartDraw>
+    <PartDraw x="163" y="384" width="154" height="32">
+      <Launch target="com.samsung.android.watch.worldclock/com.samsung.android.watch.worldclock.activity.WorldClockMainActivity"/>
+      <Variant mode="AMBIENT" target="alpha" value="0"/>
+      <Rectangle x="0" y="0" width="154" height="32">
+        <Fill color="#02000000"/>
+      </Rectangle>
+    </PartDraw>
 
   </Scene>
 </WatchFace>
