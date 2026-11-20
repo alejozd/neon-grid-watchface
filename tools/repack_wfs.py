@@ -101,7 +101,8 @@ if __name__ == "__main__":
         import json
         from PIL import Image
 
-        from make_wfs_project import CANVAS, DESIGN_CANVAS, SCALE, build_model  # noqa: E402
+        from make_wfs_project import (CANVAS, DESIGN_CANVAS, SCALE,  # noqa: E402
+                                      build_model, hand_crop)
 
         model = build_model()
         hands = json.load(open(os.path.join(ROOT, "design", "out", "hands.json"),
@@ -127,12 +128,17 @@ if __name__ == "__main__":
             "neon_bg.png": load_resized(os.path.join(ROOT, "design", "out", "bg.png"),
                                         (CANVAS, CANVAS)),
         }
-        # full-canvas hands (exported by tools/export_wfs_assets.py)
-        for fname, src in (("neon_hand_hour.png", "hand_hour_480.png"),
-                           ("neon_hand_minute.png", "hand_minute_480.png"),
-                           ("neon_hand_second.png", "hand_second_480.png")):
-            art[fname] = load_resized(os.path.join(ROOT, "wfs-assets", src),
-                                      (CANVAS, CANVAS))
+        # hands: tall narrow slice (full canvas height, hand width). WFS stretches
+        # the image to the node box, so this is the shape it expects.
+        for fname, src, key in (("neon_hand_hour.png", "hand_hour_480.png", "hour"),
+                                ("neon_hand_minute.png", "hand_minute_480.png", "minute"),
+                                ("neon_hand_second.png", "hand_second_480.png", "second")):
+            crop = hand_crop(hands[key])
+            im = Image.open(os.path.join(ROOT, "wfs-assets", src)).convert("RGBA")
+            im = im.crop(crop["crop"]).resize(crop["png"], Image.LANCZOS)
+            buf = io.BytesIO()
+            im.save(buf, "PNG", optimize=True)
+            art[fname] = buf.getvalue()
 
         repack(os.path.join(out_dir, "NeonGrid.wfs"),
                model=model, preview=preview, extra=art, shapes=shapes)

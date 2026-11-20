@@ -74,6 +74,21 @@ def set_image(node, filename):
     props.setdefault("referenceInfo", {})["value"] = 0
 
 
+HAND_PAD = 6          # transparent margin around the hand slice, in 480-space
+
+
+def hand_crop(geo):
+    """Horizontal slice of the 480 canvas that contains the hand, scaled to CANVAS."""
+    x0 = max(0, int(geo["x"]) - HAND_PAD)
+    x1 = min(DESIGN_CANVAS, int(geo["x"]) + int(geo["w"]) + HAND_PAD)
+    return {
+        "x": int(round(x0 * SCALE)),
+        "w": max(1, int(round((x1 - x0) * SCALE))),
+        "crop": (x0, 0, x1, DESIGN_CANVAS),
+        "png": (max(1, int(round((x1 - x0) * SCALE))), CANVAS),
+    }
+
+
 def build_model():
     with zipfile.ZipFile(SAMPLE) as z:
         model = json.loads(z.read("honeyface.json").decode("utf-8"))
@@ -114,10 +129,12 @@ def build_model():
         h["name"] = key
         h["visible"] = True
         h["visibleOnAOD"] = typ != "analogHandSec"
-        # WFS expects hand images that span the whole canvas with the pivot at the
-        # dial centre (the samples use a 40x450 image for a 450 canvas), not the
-        # cropped hand + fractional pivot that the WFF document uses.
-        set_geom(h, 0, 0, CANVAS, CANVAS, pivot=(0.5, 0.5))
+        # WFS stretches the image to the node box, and the samples use a tall,
+        # narrow image (40x450 on a 450 canvas) whose box matches the image size
+        # and whose 50%/50% pivot lands on the dial centre. So the box is the
+        # hand's horizontal slice of the canvas: full height, hand width.
+        crop = hand_crop(g)
+        set_geom(h, crop["x"], 0, crop["w"], CANVAS, pivot=(0.5, 0.5))
         set_image(h, fname)
         clock["child"].append(h)
 
