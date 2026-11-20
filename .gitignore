@@ -9,6 +9,13 @@ build/face-*.png
 build/hr-screen.png
 build/resolver.png
 
+# --- Salidas del modo de prueba de WFS (tools/test_wfs.ps1) ---
+# Se regeneran con `tools\test_wfs.ps1`; las capturas buenas se copian a
+# build/wfs-render.png y build/wfs-aod.png (esas sí se versionan).
+build/wfs-test/
+.wfs-test-profile/
+.tmp-wfs-profile/
+
 # --- Intermedios de Python ---
 __pycache__/
 *.pyc

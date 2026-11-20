@@ -11,9 +11,10 @@ Repositorio: <https://github.com/alejozd/neon-grid-watchface> (público, rama `m
 ## 1. Resumen en dos líneas
 
 Hay una **carátula real, instalada y funcionando en el reloj** (formato WFF,
-APK firmado, compilada sin Gradle). Y hay un **proyecto de Watch Face Studio**
-que se abre correctamente, pero que **solo contiene el fondo y las tres agujas**:
-las capas de texto y datos todavía no se han generado.
+APK firmado, compilada sin Gradle). Y hay un **proyecto de Watch Face Studio
+completo y verificado**: fondo, agujas, arcos-medidor, etiquetas, todos los
+textos de datos y las zonas táctiles; renderizado y validado con el modo de
+prueba automático de WFS. Solo falta la **ranura de complicación de evento**.
 
 ---
 
@@ -77,32 +78,63 @@ adb -s <serial> install -r build\NeonGrid-wearos5.apk
 
 ---
 
-## 3. Proyecto de Watch Face Studio — ABIERTO, PERO INCOMPLETO
+## 3. Proyecto de Watch Face Studio — COMPLETO SALVO LA RANURA DE EVENTO
 
 ### Qué hay
-`wfs-project/NeonGrid.wfs` se abre en WFS 1.9.9 sin errores. Contiene:
+`wfs-project/NeonGrid.wfs` se abre en WFS 1.9.9 sin errores y **renderiza la
+esfera entera** (verificado con el modo de prueba, ver 4.7). Capas, de abajo
+arriba:
 
 - Lienzo **450×450** circular.
-- Capa `bg` con el fondo (`neon_bg.png`).
+- `bg` — el fondo (`neon_bg.png`).
+- `gauge_battery`, `gauge_steps` — dos `progressBar` circulares reales: arco cian
+  246→294 con `[BATT_PER]` y arco magenta 300→340 con `[SC_PER]`, pista de fondo
+  al 20 % de opacidad. WFS los exporta como dos `<Arc>` con `<Transform
+  target="endAngle">`, igual que la carátula WFF.
 - Grupo `Hands` (analogClock) con `hour`, `minute`, `second` (28/26/30 × 450).
+- Etiquetas rasterizadas `lbl_bat`, `lbl_bpm`, `lbl_pasos`, `lbl_msg`,
+  `lbl_event` (los PNG de `design/out/labels`).
+- Datos: `time` (HH:MM 12 h), `sec`, `ampm`, `date`, `temp`, `cond`, `tminmax`,
+  `msg_v`, `bat_v`, `hr_v`, `steps_v`, `steps_pct`.
+- Seis zonas táctiles invisibles (`drawEllipse` al 1 % de alfa) con `<Launch>` a
+  los mismos destinos verificados en el reloj.
 
-### Qué falta (siguiente paso del próximo chat)
-**Todas las capas de texto y datos**: hora digital, segundos, AM/PM, fecha,
-temperatura, condición, máx/mín, MSG, batería, pulso, pasos, ranura de evento y
-las zonas táctiles. Por eso al abrir el proyecto solo se ven las agujas.
+Capturas del render real de WFS: `build/wfs-render.png` (normal) y
+`build/wfs-aod.png` (Always-On). El XML que genera WFS está en
+`build/wfs-generated.xml`.
+
+Valores por defecto del modo de prueba (los del propio WFS): 10:08:32, 25 °C,
+despejado, batería 100 %, 3457 pasos (34 %), 89 ppm, 0 notificaciones.
+
+### Qué falta
+La **ranura de complicación de evento** (caja 262..418 × 156..210 de 480, o sea
+245..392 × 146..197 a 450). El nodo `complicationSlot` es el más complejo del
+modelo: guarda `complicationTypes` con un árbol de elementos propio por tipo de
+complicación (`shortText`, `longText`, …), cada uno con sus textos, iconos y
+acciones. Hay que clonarlo de `Info_clocks.wfs`/`Outdoor_activity.wfs` y
+reescribir sus nodos internos (fuente, tamaño, color) con las mismas utilidades
+que el resto de capas.
 
 ### Cómo se genera
 ```powershell
-python tools\make_wfs_project.py     # modelo (honeyface.json)
-python tools\repack_wfs.py           # empaquetado + sello  (usar este)
+python tools\repack_wfs.py       # empaquetado + sello  (usar este)
+python tools\check_wfs.py        # invariantes del ZIP/modelo
+tools\test_wfs.ps1               # modo de prueba de WFS: render + XML + resumen
 ```
-`repack_wfs.py` importa `build_model()` y `hand_crop()` de `make_wfs_project.py`
-y escribe `wfs-project/NeonGrid.wfs`. `make_wfs_project.py` por sí solo **no**
-añade el sello final, así que el archivo bueno es el que produce `repack_wfs.py`.
+`repack_wfs.py` importa `build_model()`, `hand_crop()` y `strings_xml()` de
+`make_wfs_project.py` y escribe `wfs-project/NeonGrid.wfs`.
+`make_wfs_project.py` por sí solo **no** añade el sello final, así que el archivo
+bueno es el que produce `repack_wfs.py`.
+
+El modelo se construye por *cirugía de plantillas*: los nodos `text` y
+`progressBar` se clonan de `Weather_health_D_C.wfs`, la escena, el fondo, las
+agujas y la zona táctil de `Minimal_classic_W_B.wfs`, y se reescriben geometría,
+fuente, colores y expresiones. Nada de eso se escribe a mano desde cero.
 
 ### Referencias de coordenadas
 `wfs-assets/SPEC.md` tiene la tabla completa de posiciones **a 480×480**.
-Para el proyecto de WFS hay que escalarlas por **450/480 = 0.9375**.
+`design/out/layout.json` es la fuente de verdad que usa el generador, y todo se
+escala por **450/480 = 0.9375**.
 
 ---
 
@@ -169,17 +201,92 @@ y pivote **50 %/50 %** (que cae en el centro del dial). Si se le pasa un cuadrad
 `hand_crop()` en `make_wfs_project.py` calcula ese recorte (alto completo, ancho
 de la aguja + 6 px de margen) y escala a 450.
 
-### 4.6 Rotación de las agujas en el editor
-**PENDIENTE DE CONFIRMAR.** El editor de WFS muestra las agujas a las 12 en
-punto (rotación 0) y en el proyecto de ejemplo de Samsung también están
-guardadas con rotación 0. La hipótesis es que la rotación por hora se aplica al
-pulsar **Play** o **Run on Device**. Prueba de 10 segundos:
+### 4.6 Rotación de las agujas: CONFIRMADO
+El editor de WFS muestra las agujas a las 12 en punto (rotación 0) y en el
+proyecto de ejemplo de Samsung también están guardadas con rotación 0. La
+rotación por hora **se aplica al renderizar**: en la captura del modo de prueba
+(`build/wfs-render.png`, hora 10:08:32) las agujas están a las 10:08 y el
+segundero apunta a los 32 s. No hay nada que corregir en el nodo `analogClock`.
 
-> Abrir `wfs-project/NeonGrid.wfs`, pulsar ▶ (abajo a la izquierda) o mover el
-> deslizador de la línea de tiempo 0–24 h, y ver si las agujas giran a las 10:08.
+### 4.7 El modo de prueba de WFS (la herramienta que faltaba)
+WFS 1.9.9 trae un modo headless **no documentado** que abre proyectos, los
+renderiza y (opcionalmente) los compila sin tocar la interfaz:
 
-Si **no** giran con Play, el problema está en el nodo `analogClock` y hay que
-comparar campo por campo con el del ejemplo `Minimal_classic_W_B.wfs`.
+```powershell
+$env:ELECTRON_RUN_AS_NODE = $null      # si no, Electron arranca como Node
+& "$env:LOCALAPPDATA\Programs\WatchFaceStudio\WatchFaceStudio.exe" `
+    --test --wfs=<proyecto.wfs> --out=<carpeta> --user-data-dir=<perfil> [--build]
+```
+
+Deja en `<carpeta>`:
+
+| Archivo | Qué es |
+|---|---|
+| `<proyecto>.preview.png` | render normal (450×450) |
+| `<proyecto>.aod.png` | render Always-On + análisis de burn-in |
+| `<proyecto>.xml` | el XML WFF que generaría al compilar |
+| `testmode-summary.json` | `status` success/failed, `stage`, `message`, `durationMs` |
+
+**Cuatro trampas, todas sufridas:**
+
+1. `ELECTRON_RUN_AS_NODE=1` en el entorno (lo pone el harness) hace que el exe
+   corra como Node y conteste `bad option: --wfs=...`. Hay que borrarla.
+2. Compartir `%APPDATA%` con una instancia abierta hace que Chromium bloquee el
+   perfil: el modo de prueba termina con el resumen vacío y `items: []`. Usar
+   siempre `--user-data-dir` propio.
+3. Necesita escribir en `%APPDATA%` y en su directorio de instalación; con el
+   sandbox de archivos de DSH la app aborta al arrancar (`0x80000003`). Correr
+   con `danger-full-access`.
+4. `--build` compila el **AAB** (con `tools/common/key/debug.keystore`), no un
+   APK instalable por adb.
+
+Envoltorio listo para usar: `tools/test_wfs.ps1` (repack + prueba + resumen).
+
+### 4.8 Expresiones y etiquetas de datos
+Los textos se guardan como **segmentos**: `categories.text.properties.text.value`
+es la plantilla editable (`([BATT_PER])%`) y `.expression` la lista de segmentos
+`{"format":"expression"|"string", value, result, resultFormat}`.
+
+Etiquetas que el motor entiende (sacadas de `app.asar`, ver
+`tools/debug/debug_app_tags.py` y `debug_app_context.py`):
+
+| Uso | Etiqueta |
+|---|---|
+| Hora / minutos / segundos | `[HOUR_1_12]`, `[HOUR_0_23]`, `[HOUR_1_12_Z]`, `[MIN]`, `[MIN_Z]`, `[SEC]`, `[SEC_Z]`, `[AMPM]`, `[IS_24H]` |
+| Fecha | `[DAY_1_31]`, `[DAY_1_31_Z]`, `[DAY_WEEK_S]`, `[DAY_WEEK_F]`, `[MON_S]`, `[MON_F]`, `[MON_Z]`, `[YEAR]` |
+| Batería / notificaciones | `[BATT_PER]`, `[BATT_IS_CHARGE]`, `[BATT_IS_LOW]`, `[UNREAD_NC]` |
+| Salud | `[HR]`, `[HR_Z]`, `[SC]`, `[SC_GOAL]`, `[SC_PER]` |
+| Clima | `[WTHR_TEM]`, `[WTHR_DAY_TEM_HIGH]`, `[WTHR_DAY_TEM_LOW]`, `[WTHR_COND]`, `[WTHR_COND_NAME]`, `[WTHR_UV_INDEX]`, `[WTHR_IS_AVAIL]` |
+
+Hallazgos:
+
+- `hourFormat` acepta `"12"`, `"24"` y `"SYNC_TO_DEVICE"`; `timeFormat` acepta
+  `h`, `hm`, `hms`, `m`, `s`… pero **su plantilla automática no permite hora sin
+  cero y minutos con cero a la vez**. Por eso la hora se hace con un nodo `text`
+  de tres segmentos: `[HOUR_1_12]` + `":"` + `[MIN_Z]`.
+- El operador **`||` no funciona** en el evaluador del editor (WFS sí lo usa en
+  las condiciones que genera, pero es otro evaluador). Una cadena con `||` cae
+  siempre al valor por defecto. La condición del clima se resuelve con un
+  ternario anidado por código (15 comparaciones sueltas, sin operadores
+  lógicos) y se ve correctamente: `DESPEJADO` con el clima de ejemplo.
+- `[WTHR_COND_NAME]` no se usa: en este firmware renderiza vacío (mismo problema
+  que `WEATHER.CONDITION_NAME` en WFF).
+- `letterSpacing` se guarda como **porcentaje**: `em * 100`. WFS escribe
+  `letterSpacing="0.02121"` a partir de 2.121.
+
+### 4.9 Acciones `openApp`: sí aceptan paquete/actividad
+WFS sólo ofrece 8 apps del sistema en el desplegable, pero el modelo guarda el
+`customAppId` tal cual y `createAction` lo escribe en `<Launch target="…">`. Con
+`type:"custom"` se puede poner `com.whatsapp` o
+`com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.heartrate.view.HeartRateActivity`,
+exactamente los destinos verificados en el reloj. El `stringResId` debe existir
+en `stringResource` (el generador añade `ID_TAP_*` y escribe
+`res/values/strings.xml`).
+
+### 4.10 Las agujas heredadas del ejemplo vienen teñidas
+El nodo `analogHandHour` de `Minimal_classic_W_B.wfs` trae `color` **negro**
+(es la variante AOD): WFS exporta `<HourHand tintColor="#ff000000"/>` y la aguja
+desaparece. Hay que forzar blanco (`#FFFFFFFF` = sin teñir) al clonar las tres.
 
 ---
 
@@ -210,23 +317,22 @@ Notas de entorno:
 
 ## 6. Siguiente paso concreto (para el próximo chat)
 
-1. **Confirmar** si las agujas giran al pulsar Play (ver 4.6). Es el único
-   cabo suelto del trabajo hecho hasta ahora.
-2. **Añadir las capas de texto y datos** al generador del `.wfs`, clonando
-   plantillas del ejemplo y usando las coordenadas de `wfs-assets/SPEC.md`
-   escaladas ×0.9375:
-   - `digitalClock` para HH:MM (12 h) y para los segundos.
-   - `text` para AM/PM, temperatura, condición, máx/mín, valores de datos.
-   - `date` para la fecha.
-   - `complication` para la ranura de evento.
-   - Rectángulos invisibles (`drawEllipse`/`image`) con enlace para los toques.
-   - Pestaña **ALWAYS-ON** con la versión para AOD.
-3. Publicar/comprobar con **Run on Device** y, si funciona, comparar con la
-   carátula ya instalada.
+1. **Añadir la ranura de complicación de evento** al generador del `.wfs`
+   (lo único que falta). Clonar el `complicationSlot` de `Info_clocks.wfs`,
+   ponerle la caja 245,146,147,51 a 450 y reescribir sus nodos internos con las
+   mismas utilidades (`tidy_text`, `set_color`, `set_geom`). Comprobar con
+   `tools\test_wfs.ps1` que `status` sigue en `success` y que el XML lleva
+   `<ComplicationSlot>`.
+2. (Opcional) Afinar el Always-On: la fecha sale en magenta sobre negro; para
+   OLED conviene un gris tenue. WFS no tiene color por modo, así que habría que
+   duplicar el nodo con `visibleOnAOD` complementario.
+3. Probar en el reloj con **Run on Device** y comparar con la carátula WFF ya
+   instalada (mismos toques, mismos datos).
 
-Regla de trabajo que ha funcionado: **un cambio, una prueba, y leer
-`renderer.log` ante cualquier fallo**. Los cuatro errores del `.wfs` se
-resolvieron así, no a ciegas.
+Regla de trabajo que ha funcionado: **un cambio, una prueba**. Ahora la prueba es
+barata: `python tools\repack_wfs.py` + `tools\test_wfs.ps1` y mirar
+`build/wfs-test/NeonGrid.preview.png` y `testmode-summary.json`. Ante un fallo de
+apertura, `%APPDATA%\WatchFaceStudio\dump\renderer.log`.
 
 ---
 
@@ -237,15 +343,28 @@ watchface/      proyecto WFF (manifest, res/raw/watchface.xml, …)
 design/         render.py (arte por código) + out/ (PNGs, layout.json, hands.json)
 tools/          gen_watchface.py, export_wfs_assets.py,
                 make_wfs_project.py, repack_wfs.py, patch_wfs_flags.py,
-                make_variants.py, debug/
+                check_wfs.py, test_wfs.ps1, make_variants.py, debug/
 wfs-assets/     capas sueltas + SPEC.md (tabla de coordenadas y toques)
 wfs-project/    NeonGrid.wfs  <- proyecto para abrir en WFS
 docs/           HANDOFF.md (este archivo), WFF_RESEARCH.md, research/
-build/          APKs firmados, keystore, capturas
+build/          APKs firmados, keystore, capturas, wfs-render.png, wfs-aod.png,
+                wfs-generated.xml
 build.ps1       compilación y firma offline
 install.ps1     asistente de emparejamiento/instalación por adb
 README.md       guía en español
 ```
 
-La carátula del reloj está terminada y funcionando. El proyecto de WFS está
-abierto y validado; le faltan las capas de datos.
+Herramientas de investigación en `tools/debug/` (leen directamente `app.asar` y
+los proyectos de ejemplo, son la fuente de todo lo de la sección 4):
+
+| Script | Para qué |
+|---|---|
+| `debug_dump_nodes.py <ejemplo.wfs>` | árbol de nodos con geometría |
+| `debug_node_json.py <ejemplo.wfs> --name X` | JSON completo de un nodo |
+| `debug_node_props.py <ejemplo.wfs> --type text` | propiedades planas, fácil de comparar |
+| `debug_tags.py tags\|actions\|texts` | inventario de etiquetas y acciones de los 12 ejemplos |
+| `debug_app_tags.py WTHR` | busca nombres de etiqueta dentro de `app.asar` |
+| `debug_app_context.py <texto> [radio]` | imprime el código alrededor de un literal |
+
+La carátula del reloj está terminada y funcionando. El proyecto de WFS renderiza
+la esfera entera; solo le falta la ranura de complicación de evento.

@@ -30,7 +30,8 @@ def make_info(src_info, is_dir=False):
     return zi
 
 
-def repack(dest, model=None, preview=None, extra=None, shapes=None, drop_sample_art=True):
+def repack(dest, model=None, preview=None, extra=None, shapes=None, strings=None,
+           drop_sample_art=True):
     """Writes `dest` from the sample, optionally replacing the model and art."""
     extra = extra or {}
     with zipfile.ZipFile(SAMPLE) as zin, zipfile.ZipFile(dest, "w") as zout:
@@ -59,6 +60,9 @@ def repack(dest, model=None, preview=None, extra=None, shapes=None, drop_sample_
                 continue
             if shapes is not None and name == "res/xml/watch_face_shapes.xml":
                 zout.writestr(make_info(item), shapes)
+                continue
+            if strings is not None and name == "res/values/strings.xml":
+                zout.writestr(make_info(item), strings)
                 continue
             zout.writestr(make_info(item), zin.read(name))
 
@@ -102,7 +106,7 @@ if __name__ == "__main__":
         from PIL import Image
 
         from make_wfs_project import (CANVAS, DESIGN_CANVAS, SCALE,  # noqa: E402
-                                      build_model, hand_crop)
+                                      build_model, hand_crop, strings_xml)
 
         model = build_model()
         hands = json.load(open(os.path.join(ROOT, "design", "out", "hands.json"),
@@ -128,6 +132,13 @@ if __name__ == "__main__":
             "neon_bg.png": load_resized(os.path.join(ROOT, "design", "out", "bg.png"),
                                         (CANVAS, CANVAS)),
         }
+        # baked HUD labels, copied as-is (WFS stretches them to the node box)
+        labels_dir = os.path.join(ROOT, "design", "out", "labels")
+        with open(os.path.join(labels_dir, "labels.json"), encoding="utf-8") as fh:
+            for name, meta in json.load(fh).items():
+                with open(os.path.join(labels_dir, meta["file"]), "rb") as fh2:
+                    art["neon_%s.png" % name] = fh2.read()
+
         # hands: tall narrow slice (full canvas height, hand width). WFS stretches
         # the image to the node box, so this is the shape it expects.
         for fname, src, key in (("neon_hand_hour.png", "hand_hour_480.png", "hour"),
@@ -141,4 +152,5 @@ if __name__ == "__main__":
             art[fname] = buf.getvalue()
 
         repack(os.path.join(out_dir, "NeonGrid.wfs"),
-               model=model, preview=preview, extra=art, shapes=shapes)
+               model=model, preview=preview, extra=art, shapes=shapes,
+               strings=strings_xml(model))
