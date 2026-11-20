@@ -240,20 +240,18 @@ reconstruible.
 plantilla* sobre el ejemplo `Minimal_classic_W_B.wfs`: conserva la estructura de nodos de
 un proyecto analógico que ya funciona y le inyecta nuestro arte y geometría.
 
-Contenido actual del proyecto generado:
+Contenido actual del proyecto generado (completo):
 
-- Lienzo **480×480**, tipo analogico, forma circular.
-- Capa `bg` con `neon_bg.png` a pantalla completa.
-- `analogClock` con las tres agujas (`neon_hand_hour/minute/second.png`), cada una con su
-  posición, tamaño y pivote exactos.
+- Lienzo **450×450** (es el único que acepta WFS 1.9.9), tipo analógico, forma circular.
+- Capa `bg`, los dos arcos-medidor, `analogClock` con las tres agujas, las etiquetas
+  rasterizadas, los textos de datos (hora 12 h, segundos, AM/PM, fecha, clima, MSG,
+  batería, pulso, pasos), la hora mundial y la ranura de complicación de evento.
+- Seis zonas táctiles con los mismos destinos que el APK.
 
 **Cómo abrirlo:** Watch Face Studio → *File → Open Project* → `wfs-project/NeonGrid.wfs`.
 
-> Es una **primera versión**: lleva fondo y agujas. Los textos y datos (hora, fecha,
-> clima, pasos, pulso, batería, notificaciones, eventos) hay que añadirlos como capas de
-> WFS usando la tabla de [`wfs-assets/SPEC.md`](wfs-assets/SPEC.md). Si el proyecto abre
-> bien, el siguiente paso es extender el generador para crear también esos nodos
-> (`digitalClock`, `date`, `text`, `complication`).
+Se puede validar sin abrir la interfaz con `python tools\check_wfs.py` y renderizar con
+`tools\test_wfs.ps1` (modo de prueba de WFS: deja preview, AOD y el XML compilado).
 ### El sello final del archivo `.wfs` (la clave del "Invalid project file")
 
 WFS **no** valida el proyecto leyendo el ZIP: mira los **últimos bytes del archivo**.
@@ -274,6 +272,11 @@ añade al final, así que el archivo generado pasa la validación.
 
 ## 10. Continuar el trabajo (traspaso)
 
-El estado completo del proyecto, los hallazgos del formato `.wfs` y el siguiente
-paso concreto están en **[`docs/HANDOFF.md`](docs/HANDOFF.md)**: léelo antes de
-retomar el trabajo en otra sesión.
+El estado completo del proyecto, los hallazgos del formato `.wfs` y las
+exploraciones de diseño están en **[`docs/HANDOFF.md`](docs/HANDOFF.md)**: léelo
+antes de retomar el trabajo en otra sesión.
+
+**Proyecto cerrado** (versionCode 32 instalado en el reloj). El diseño actual se
+queda como está: las nueve propuestas visuales de `docs/HANDOFF.md` §8 se
+descartaron y viven solo como imágenes en `build/mock-*.png` y scripts en
+`tools/debug/`.

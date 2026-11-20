@@ -13,9 +13,13 @@ Repositorio: <https://github.com/alejozd/neon-grid-watchface> (público, rama `m
 Hay una **carátula real, instalada y funcionando en el reloj** (formato WFF,
 APK firmado, compilada sin Gradle). Y hay un **proyecto de Watch Face Studio
 completo y verificado**: fondo, agujas, arcos-medidor, etiquetas, todos los
-textos de datos, la ranura de complicación de evento y las zonas táctiles;
-renderizado y validado con el modo de prueba automático de WFS y con el XML WFF
-que genera al compilar. Solo falta probarlo en el reloj con **Run on Device**.
+textos de datos, la ranura de complicación de evento, la hora mundial y las
+zonas táctiles; renderizado y validado con el modo de prueba automático de WFS y
+con el XML WFF que genera al compilar.
+
+**Cerrado**: el diseño actual se queda como está. Se exploraron seis
+distribuciones y tres rediseños más (sección 8) y no se adoptó ninguno; quedan
+los bocetos y los scripts por si en el futuro se quiere retomar.
 
 ---
 
@@ -33,18 +37,20 @@ APK de recursos (sin código) en Watch Face Format v2, instalado y probado en un
 | Oro | `com.relog.neongrid.gold` | `build/NeonGrid-gold-wearos5.apk` |
 | Hielo | `com.relog.neongrid.ice` | `build/NeonGrid-ice-wearos5.apk` |
 
-Versión actual: **2.4** (versionCode 27). Firma: `build/keystore/cyber.jks`
-(alias `cyber`, pass `cyberwatch`; clave de desarrollo, no para Play).
+Versión actual: **2.4** (versionCode **32**, instalado y activo en el reloj).
+Firma: `build/keystore/cyber.jks` (alias `cyber`, pass `cyberwatch`; clave de
+desarrollo, no para Play).
 
 ### Contenido de la esfera
 Hora 12 h en cian (66 px, anclada a la derecha en x=326), AM/PM, segundero,
 fecha 26 px (y=366), temperatura 30 px, condición, máx/mín, contador MSG,
 ranura de evento (complicación), batería %, pulso, pasos + %, dos arcos-medidor
 reales (batería 246→294, pasos 300→340), etiquetas de 13 px y la **hora mundial**
-en una ranura de complicación centrada bajo la fecha (y=386..420).
+centrada bajo la fecha (y=400).
 
-La hora mundial es **texto plano** otra vez: `BCN` en gris + la hora calculada
-(ver 4.12) en cian, centrada bajo la fecha (y=400).
+La hora mundial es **texto plano**: `BCN` en gris + la hora calculada
+(ver 4.12) en cian, y **tocar la línea abre la app de reloj mundial**
+(`WorldClockMainActivity`), que es la forma de consultar/añadir otras ciudades.
 
 Se intentó convertirla en ranura de complicación (`slotId="3"`) para que el
 usuario eligiera ciudad. **No funcionó y se revirtió** (ver 4.13): con
@@ -421,20 +427,27 @@ Notas de entorno:
 
 ---
 
-## 6. Siguiente paso concreto (para el próximo chat)
+## 6. Estado y trabajo opcional
 
-1. **Volver a poner la esfera en el reloj** (pulsación larga → Neon Grid) y
-   comprobar que `BCN` marca España y que el texto del evento sigue subido. La
-   versión instalada es la del `versionCode` 27.
-2. Probar en el reloj el proyecto de WFS con *Run on Device* (o `--build` para
+**Nada pendiente por obligación**: la esfera está instalada y funcionando
+(versionCode **32**), con la hora de Barcelona verificada, las manecillas nuevas,
+el evento subido, el clima a prueba de falta de datos y el toque que abre el
+reloj mundial. El proyecto de WFS también está completo y validado.
+
+Si algún día se retoma, esto es lo que queda (todo opcional):
+
+1. Probar el proyecto de WFS en el reloj con *Run on Device* (o `--build` para
    sacar el AAB) y comparar con la carátula WFF ya instalada.
-3. (Opcional) Afinar el Always-On: la fecha sale en magenta sobre negro; para
-   OLED conviene un gris tenue. WFS no tiene color por modo, así que habría que
-   duplicar el nodo con `visibleOnAOD` complementario.
-4. (Opcional) La hora mundial usa el desfase del reloj como constante de
-   compilación (`--device-utc-offset`). Si algún día se confirma que
-   `[TIMEZONE_OFFSET]` (sin `_DST`) sí existe en el runtime, se puede sustituir y
-   la esfera aguantaría cambios de zona horaria del reloj.
+2. Afinar el Always-On: la fecha sale en magenta sobre negro; para OLED conviene
+   un gris tenue. WFS no tiene color por modo, así que habría que duplicar el
+   nodo con `visibleOnAOD` complementario.
+3. La hora mundial usa el desfase del reloj como constante de compilación
+   (`--device-utc-offset`, `-5` por defecto). La regla de verano sí es dinámica;
+   lo que no se puede es mover la esfera de país sin recompilar. Si se confirma
+   que `[TIMEZONE_OFFSET]` (sin `_DST`) existe en el runtime, se sustituye.
+4. Elegir ciudad **dentro** de la esfera (ranura de complicación): aparcado, ver
+   4.13. La alternativa que sí funciona es el toque que abre la app.
+5. Retomar cualquiera de las nueve propuestas visuales (sección 8).
 
 Regla de trabajo que ha funcionado: **un cambio, una prueba**. Ahora la prueba es
 barata: `python tools\repack_wfs.py` + `tools\test_wfs.ps1` y mirar
@@ -474,10 +487,32 @@ los proyectos de ejemplo, son la fuente de todo lo de la sección 4):
 | `debug_tags.py tags\|actions\|texts` | inventario de etiquetas y acciones de los 12 ejemplos |
 | `debug_app_tags.py WTHR` | busca nombres de etiqueta dentro de `app.asar` |
 | `debug_app_context.py <texto> [radio]` | imprime el código alrededor de un literal |
-| `mock_world_clock.py` | montajes (solo imagen) de dónde poner la hora mundial |
+| `mock_world_clock.py` | montajes de dónde poner la hora mundial (eligió la opción B) |
+| `mock_layouts.py` | tres redistribuciones de la esfera actual |
+| `mock_concepts.py` | consola, tarjetas y arcade (tipografía grande) |
+| `mock_redesign.py` | sunset, pixel y papel (paleta y formas nuevas) |
+
+### 8. Exploraciones de diseño (cerradas, ninguna adoptada)
+
+Entre el 20 y el 21/11 se propusieron **nueve** variantes, todas solo como
+imagen (`build/mock-*.png`) y sin tocar la esfera:
+
+1. Tres redistribuciones de la información actual (cápsula inferior, anillos con
+   insignias, rail lateral). → descartadas por «parecerse demasiado a lo que hay».
+2. Tres con tipografía grande y estética de juego (consola radar con agujas,
+   tarjetas digitales con esquinas cortadas, arcade con barras segmentadas).
+   → descartadas.
+3. Tres rediseños totales: **sunset** (degradado cálido, sol rayado, pastillas),
+   **pixel** (8 bits, verde ácido, corazones) y **papel** (fondo claro, tinta
+   fina, acentos azul/naranja). → descartadas.
+
+**Conclusión**: el diseño actual (cian/magenta sobre negro, rejilla, arcos y
+manecillas `blade`) se queda. Los scripts quedan en `tools/debug/` y las capturas
+en `build/`, así que retomar cualquiera es cuestión de abrir el script y
+desarrollarlo de verdad en `design/render.py`.
 
 La carátula del reloj está terminada y funcionando en el reloj, con la hora de
-Barcelona y las manecillas nuevas. El proyecto de WFS renderiza la esfera entera
-y compila a WFF. Lo que queda es **volver a seleccionar la esfera en el reloj**
-(el sistema la devolvió a la de fábrica cuando el runtime murió con la expresión
-mala) y comprobar en pantalla que `BCN` marca la hora correcta.
+Barcelona, las manecillas nuevas, el evento más arriba y el clima a prueba de
+falta de datos. El proyecto de WFS renderiza la esfera entera y compila a WFF.
+**Proyecto cerrado**: no queda trabajo pendiente salvo lo opcional de la
+sección 6 y probar el proyecto de WFS con *Run on Device*.
