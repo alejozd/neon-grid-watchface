@@ -87,7 +87,41 @@ ALIGN = {
     "hr_v": ("start", 72),
     "steps_v": ("end", 404),
     "steps_pct": ("end", 404),
+    "wl_lbl": ("end", 232),
+    "wclock": ("start", 240),
 }
+
+# World clock. The editor only understands `icuText` inside a `date` node, and
+# such a node can only carry a fixed hours offset: in a plain text node the
+# editor keeps `icuText(...)` verbatim and the compiled XML ends up with literal
+# text (verified). So the offset is computed here, at build time, from the EU
+# rule; the WFF APK built by tools/gen_watchface.py carries the live rule.
+WORLD_LABEL = "BCN"
+WORLD_WINTER = 1           # CET
+WORLD_SUMMER = 2           # CEST
+DEVICE_UTC_OFFSET = -5     # Bogota
+
+
+def _last_sunday(year, month):
+    import datetime
+    day = datetime.date(year, month, 31)
+    while day.weekday() != 6:          # 6 = Sunday
+        day -= datetime.timedelta(days=1)
+    return datetime.datetime(day.year, day.month, day.day, 1)
+
+
+def spain_utc_offset(now=None):
+    """UTC offset of mainland Spain right now (1 in winter, 2 in summer)."""
+    import datetime
+    now = now or datetime.datetime.utcnow()
+    if _last_sunday(now.year, 3) <= now < _last_sunday(now.year, 10):
+        return WORLD_SUMMER
+    return WORLD_WINTER
+
+
+def world_clock_hours_offset():
+    """Hours to add to the watch's own clock to show Barcelona time."""
+    return spain_utc_offset() - DEVICE_UTC_OFFSET
 
 # Weather condition labels, same mapping as the Condition block of the WFF
 # project (WEATHER.CONDITION_NAME renders empty on this firmware, so the label
@@ -320,7 +354,38 @@ def build_texts(text_tpl, layout, palette):
             [("expr", "[SC]")]),
         tpl("steps_pct", "steps_pct", layout["steps_pct"]["size"], palette["dim"],
             [("expr", "[SC_PER]"), ("str", "%")]),
+        # world clock label (the time itself is a `date` node, see below)
+        tpl("wl_lbl", "wl_lbl", layout["wl_lbl"]["size"], palette["dim"],
+            [("str", WORLD_LABEL)], ls_key="wl_lbl"),
     ]
+
+
+def build_world_clock(tpl, layout, palette):
+    """Barcelona time as a `date` node with a fixed hours offset (see above)."""
+    hours = world_clock_hours_offset()
+    node = json.loads(json.dumps(tpl))
+    reid(node)
+    node["name"] = "wclock"
+    node["visible"] = True
+    node["visibleOnAOD"] = False
+    node["applyThemeColor"] = False
+    size = layout["wclock"]["size"]
+    align = place_text(node, "wclock", size * SCALE, layout)
+    tidy_text(node, round(size * SCALE, 3), align, palette["cyan"],
+              letter_spacing=round(layout["wclock"].get("ls", 0) / size * 100, 3))
+    props = node["categories"]["date"]["properties"]
+    props["icuFormat"] = {"value": "Hmm"}
+    props["timeSource"] = {"value": {"type": "hours", "basedTimeDataSource": "UTC_TS",
+                                     "hoursOffset": hours, "daysOffset": 0}}
+    props["timezone"] = {"value": "device"}
+    props["localCalendar"] = {"value": "GREGORIAN"}
+    props["language"] = {"value": []}
+    source = 'icuText("Hmm", [UTC_TS]+%g*3600000)' % hours
+    text = node["categories"]["text"]["properties"]["text"]
+    text["value"] = "(%s)" % source
+    text["expression"] = [{"format": "expression", "value": source,
+                           "result": "16:43", "resultFormat": "string"}]
+    return node
 
 
 # ---------------------------------------------------------------------------
@@ -453,7 +518,11 @@ def hand_crop(geo):
 # of Large_letters_D_C.wfs, which is the only sample with a two-line layout.
 SLOT_SAMPLE = os.path.join(SAMPLES, "Large_letters_D_C.wfs")
 SLOT_NAME = "Line Complication"
-EVENT_BOX = (262, 156, 156, 54)      # design space, same as the WFF slot
+# raised: the violet event line used to sit too low, so the box starts higher and
+# the two lines are packed together (same numbers as tools/gen_watchface.py)
+EVENT_BOX = (262, 148, 156, 54)      # design space
+EVENT_TITLE_BOX = (0, 0, 156, 22)
+EVENT_TEXT_BOX = (0, 22, 156, 30)
 
 
 def reid_slot(slot):
@@ -511,9 +580,9 @@ def build_event_slot(layout, palette):
         tidy_text(node, round(size * SCALE, 3), "center", color)
         return node
 
-    title = line(title_tpl, "shortTitle", (0, 2, w / SCALE, 22),
+    title = line(title_tpl, "shortTitle", EVENT_TITLE_BOX,
                  12, palette["dim"], "event_title")
-    text = line(text_tpl, "shortText", (0, 24, w / SCALE, 27),
+    text = line(text_tpl, "shortText", EVENT_TEXT_BOX,
                 16, palette["violet"], "event_text")
 
     # the slot bound rectangle comes first, then the two texts (no icon: the
@@ -584,6 +653,7 @@ def build_model():
     data_children = data_model["scene"][0]["child"]
     text_tpl = find(data_children, "text")
     gauge_tpl = find(data_children, "progressBar")
+    date_tpl = find(data_children, "date")
 
     with open(os.path.join(DESIGN, "hands.json"), encoding="utf-8") as fh:
         hand_geo = json.load(fh)
@@ -633,11 +703,12 @@ def build_model():
     gauges = build_gauges(gauge_tpl, palette)
     labels = build_labels(bg_tpl, labels_json)
     texts = build_texts(text_tpl, layout, palette)
+    wclock = build_world_clock(date_tpl, layout, palette)
     event_slot = build_event_slot(layout, palette)
     taps = build_tap_zones(touch_tpl)
 
     # z-order: background, meters, hands, labels, data, event slot, tap zones
-    scene["child"] = [bg] + gauges + [clock] + labels + texts + [event_slot] + taps
+    scene["child"] = [bg] + gauges + [clock] + labels + texts + [wclock, event_slot] + taps
     scene["name"] = "Root"
 
     # every container must agree with the canvas, otherwise WFS reports

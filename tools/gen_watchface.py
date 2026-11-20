@@ -67,7 +67,40 @@ ALIGN = {
     "steps_v": ("RIGHT", 404),
     "steps_pct": ("RIGHT", 404),
     "tminmax": ("CENTER", S / 2),
+    "wl_lbl":  ("RIGHT", 232),
+    "wclock":  ("LEFT", 240),
 }
+
+# World clock. `<Localization timezone="..."/>` does NOT work on this watch (the
+# runtime ignores it: the part keeps the device zone, verified on device), and
+# `[TIMEZONE_OFFSET_DST]` is NOT a valid data source for the runtime either
+# (referencing it makes the watch face crash with a NullPointerException and the
+# system falls back to the factory face).
+# So the clock is shifted with `icuText(pattern, timestamp)`, which formats the
+# given instant in the device's own zone, and the shift is
+#     (Spain offset - device offset)  hours
+# where Spain follows the EU rule (UTC+1, UTC+2 from the last Sunday of March to
+# the last Sunday of October) and the device offset is the constant below.
+WORLD_TZ = "Europe/Madrid"
+WORLD_LABEL = "BCN"
+WORLD_WINTER = 1           # CET
+WORLD_SUMMER = 2           # CEST
+DEVICE_UTC_OFFSET = -5     # Bogota; override with --device-utc-offset
+
+
+def world_clock_expression():
+    """icuText("HH:mm", now + (Spain - device) hours), DST rule included.
+
+    Only basic, well supported data sources are used: the weekday of the 31st is
+    derived from today's weekday and day number, so the season is right on the
+    device without rebuilding.
+    """
+    last_sunday = "32 - (([DAY_OF_WEEK] + 30 - [DAY_1_31]) % 7)"
+    summer = ("([MONTH] > 3 && [MONTH] < 10)"
+              " || ([MONTH] == 3 && [DAY_1_31] >= %s)"
+              " || ([MONTH] == 10 && [DAY_1_31] < %s)" % (last_sunday, last_sunday))
+    shift = "(%g + (%s ? 1 : 0))" % (WORLD_WINTER - DEVICE_UTC_OFFSET, summer)
+    return 'icuText("HH:mm", [UTC_TIMESTAMP] + %s * 3600000)' % shift
 
 
 def esc(s):
@@ -75,12 +108,14 @@ def esc(s):
 
 
 def text_part(key, fmt, params, color, box_h=None, indent="    ", mode="active",
-              y_override=None, size_override=None):
+              y_override=None, size_override=None, localize=None):
     """A PartText placed according to ALIGN[key].
 
     `fmt` is a printf-style template whose `%s` slots are filled, in order, by
     `<Parameter expression="..."/>` data sources.  Data sources must NOT sit
     inside the CDATA text: the renderer would print them literally.
+    `localize` is a time zone id: the part then reads the clock data sources in
+    that zone (this is how WFS itself emits world clocks).
 
     mode="active"  -> visible while interacting, hidden in ambient
     mode="ambient" -> hidden while interacting, visible in ambient
@@ -108,8 +143,10 @@ def text_part(key, fmt, params, color, box_h=None, indent="    ", mode="active",
     else:
         attrs = ""
         variant = f'{indent}  <Variant mode="AMBIENT" target="alpha" value="0"/>\n'
+    tz = f'{indent}  <Localization timezone="{localize}"/>\n' if localize else ""
     return (
         f'{indent}<PartText x="{x}" y="{y}" width="{w}" height="{h}"{attrs}>\n'
+        f'{tz}'
         f'{variant}'
         f'{indent}  <Text align="{align}">\n'
         f'{indent}    <Font family="{FAMILY}" size="{int(round(size))}" color="{color}"'
@@ -149,12 +186,14 @@ def events_slot(display=None):
     name) so there is more information than a single chip. LONG_TEXT providers
     get their own two-line layout.
     """
-    x, y, w, h = 262, 156, 156, 54
+    # raised: the violet line used to sit too low, so the box starts higher and
+    # the two lines are packed together
+    x, y, w, h = 262, 148, 156, 54
     return f'''    <ComplicationSlot x="{x}" y="{y}" width="{w}" height="{h}" slotId="7"
         displayName="@string/slot_events" supportedTypes="SHORT_TEXT LONG_TEXT EMPTY">
       <BoundingOval x="0" y="0" width="{w}" height="{h}"/>
       <Complication type="SHORT_TEXT">
-        <PartText x="0" y="0" width="{w}" height="26">
+        <PartText x="0" y="0" width="{w}" height="24">
           <Text align="CENTER" ellipsis="TRUE">
             <Font family="{FAMILY}" size="13" color="{DIM}" weight="BOLD">
               <Template><![CDATA[%s]]>
@@ -163,7 +202,7 @@ def events_slot(display=None):
             </Font>
           </Text>
         </PartText>
-        <PartText x="0" y="28" width="{w}" height="34">
+        <PartText x="0" y="22" width="{w}" height="30">
           <Text align="CENTER" ellipsis="TRUE">
             <Font family="{FAMILY}" size="17" color="{VIOLET}" weight="BOLD">
               <Template><![CDATA[%s]]>
@@ -174,7 +213,7 @@ def events_slot(display=None):
         </PartText>
       </Complication>
       <Complication type="LONG_TEXT">
-        <PartText x="0" y="0" width="{w}" height="26">
+        <PartText x="0" y="0" width="{w}" height="24">
           <Text align="CENTER" ellipsis="TRUE">
             <Font family="{FAMILY}" size="12" color="{DIM}" weight="BOLD">
               <Template><![CDATA[%s]]>
@@ -183,7 +222,7 @@ def events_slot(display=None):
             </Font>
           </Text>
         </PartText>
-        <PartText x="0" y="26" width="{w}" height="36">
+        <PartText x="0" y="22" width="{w}" height="30">
           <Text align="CENTER" ellipsis="TRUE">
             <Font family="{FAMILY}" size="15" color="{VIOLET}" weight="BOLD">
               <Template><![CDATA[%s]]>
@@ -329,6 +368,10 @@ def build_xml(fmt=2, with_events=True, with_weather=True, with_ambient=True, h12
     parts.append(text_part("hr_v", "%s", ["[HEART_RATE]"], MAGENTA))
     parts.append(text_part("steps_v", "%s", ["[STEP_COUNT]"], CYAN))
     parts.append(text_part("steps_pct", "%s%%", ["[STEP_PERCENT]"], DIM))
+
+    # world clock (Barcelona) under the date, 24 h
+    parts.append(text_part("wl_lbl", WORLD_LABEL, [], DIM))
+    parts.append(text_part("wclock", "%s", [world_clock_expression()], CYAN))
 
     hud = "".join(parts)
     labels = label_parts(load(os.path.join("labels", "labels.json")))
@@ -500,6 +543,9 @@ def main():
     ap.add_argument("--package", default="com.relog.neongrid")
     ap.add_argument("--label", default="Neon Grid")
     ap.add_argument("--slot-events", default="Eventos")
+    ap.add_argument("--device-utc-offset", type=float, default=-5.0,
+                    help="UTC offset of the watch, in hours (Bogota = -5); the "
+                         "world clock shift is Spain minus this")
     args = ap.parse_args()
 
     sfx = "" if args.palette == "neon" else "-" + args.palette
@@ -508,6 +554,8 @@ def main():
     HANDS_AMB = load("hands_ambient%s.json" % sfx)
 
     fmt = args.format
+    global DEVICE_UTC_OFFSET
+    DEVICE_UTC_OFFSET = args.device_utc_offset
     global LS_ENABLED, CYAN, MAGENTA, VIOLET, DIM
     LS_ENABLED = fmt >= 2
     with_weather = (fmt >= 2) and not args.no_weather

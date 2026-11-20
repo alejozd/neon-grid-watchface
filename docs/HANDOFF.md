@@ -33,14 +33,21 @@ APK de recursos (sin código) en Watch Face Format v2, instalado y probado en un
 | Oro | `com.relog.neongrid.gold` | `build/NeonGrid-gold-wearos5.apk` |
 | Hielo | `com.relog.neongrid.ice` | `build/NeonGrid-ice-wearos5.apk` |
 
-Versión actual: **2.3**. Firma: `build/keystore/cyber.jks`
+Versión actual: **2.4** (versionCode 27). Firma: `build/keystore/cyber.jks`
 (alias `cyber`, pass `cyberwatch`; clave de desarrollo, no para Play).
 
 ### Contenido de la esfera
 Hora 12 h en cian (66 px, anclada a la derecha en x=326), AM/PM, segundero,
 fecha 26 px, temperatura 30 px, condición, máx/mín, contador MSG, ranura de
 evento (complicación), batería %, pulso, pasos + %, dos arcos-medidor reales
-(batería 246→294, pasos 300→340) y etiquetas de 13 px.
+(batería 246→294, pasos 300→340), etiquetas de 13 px y la **hora de Barcelona**
+(`BCN 16:43`, 24 h) centrada bajo la fecha.
+
+Manecillas: agujas `blade` (afiladas, con espina luminosa y muesca cerca de la
+punta) y segundero `needle` con contrapeso magenta; la base queda escondida tras
+el eje. La ranura de evento se subió: caja y=148..202 y las dos líneas más
+juntas (título 0..24, texto violeta 22..52) — antes el morado caía demasiado
+abajo.
 
 ### Toques verificados en el reloj (`dumpsys window` tras cada toque)
 | Zona | Target | Abre |
@@ -63,9 +70,9 @@ la pantalla con el botón Medir (es la elegida).
 # 1. arte (escribe design/out/*)
 python design\render.py --palette neon            # gold: --palette gold --suffix=-gold
 # 2. XML + recursos del APK (watchface/)
-python tools\gen_watchface.py --format 2 --palette neon --package com.relog.neongrid --label "Neon Grid"
+python tools\gen_watchface.py --format 2 --palette neon --package com.relog.neongrid --label "Neon Grid" --device-utc-offset -5
 # 3. APK firmado (aapt2 + zipalign + apksigner, sin Gradle ni internet)
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 -MinSdk 34 -VersionName "2.3"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 -MinSdk 34 -VersionName "2.4"
 # 4. instalar y probar
 adb -s <serial> install -r build\NeonGrid-wearos5.apk
 ```
@@ -308,6 +315,50 @@ El nodo más complejo del modelo. Lo que hay que respetar:
 - Ojo con los elementos del ejemplo sin `complicationField`: si se mapean al
   texto principal, el XML sale con dos `<PartText>` idénticos superpuestos.
 
+### 4.12 Hora mundial: lo que NO funciona en este reloj
+Tres intentos, dos fallos, todos medidos en el reloj:
+
+1. **`<Localization timezone="Europe/Madrid"/>`** (lo que emite WFS para una
+   "world clock"): el runtime **lo ignora**. La esfera se pinta, pero la hora
+   sale igual que la local. Probado también declarando formato WFF v3 en el
+   manifest (por si era cosa de la versión): idéntico.
+2. **`[TIMEZONE_OFFSET_DST]`** (nombre que usa WFS internamente para el desfase
+   con DST): **no es una fuente de datos válida** para el runtime. Al
+   referenciarla, el proceso `com.samsung.wear.watchface.runtime` muere con
+   `java.lang.NullPointerException ... C2.b.F(Z2.f, java.lang.String)` y el
+   sistema vuelve a la esfera de fábrica. Síntoma en el log:
+
+   ```
+   E WearServices: [ActiveWatchFaceFacade]WatchFaceId[...] has disappeared twice
+                   in 15000 milliseconds, reverting to the fallback watch face
+   E AndroidRuntime: Process: com.samsung.wear.watchface.runtime
+   ```
+
+   Si la esfera "desaparece" sola, **lo primero es mirar ese log**: no es un
+   problema del APK ni de la instalación.
+3. **Lo que sí funciona**: `icuText("HH:mm", [UTC_TIMESTAMP] + desfase)`.
+   `icuText` formatea el instante en la zona **del reloj**, así que el desfase es
+   `España − reloj`. La regla de verano europea se calcula en la expresión con
+   `[MONTH]`, `[DAY_1_31]` y `[DAY_OF_WEEK]` (el día de la semana del 31 se
+   deduce de los de hoy), sin ninguna etiqueta exótica. El desfase del reloj va
+   como constante de compilación: `--device-utc-offset` (por defecto `-5`).
+
+En el proyecto de WFS no se puede usar la misma expresión: el editor solo
+entiende `icuText` dentro de un nodo `date`, y un nodo de texto deja
+`icuText(...)` **como texto literal** en el XML compilado (verificado). Por eso
+el `.wfs` usa un nodo `date` con un desfase en horas calculado al empaquetar
+(`spain_utc_offset()` en `make_wfs_project.py`), mientras que el APK lleva la
+regla viva.
+
+### 4.13 Cambiar la esfera activa por adb (a medias)
+No hay comando directo (`cmd wallpaper` solo tiene `set-dim-amount`). Existe un
+broadcast de Samsung, `com.samsung.android.wearable.sysui.action.SET_ACTIVE_WATCH_FACE`,
+que necesita el extra `favoriteId` (entero interno de su lista de favoritos, no
+el paquete). Se probaron `package`, `packageName`, `watch_face_package`,
+`watchFaceId`, `id` y `component`: ninguno cambia la esfera. **Tocar la pantalla
+a ciegas es mala idea** (un `input tap` acabó iniciando una llamada). Lo práctico
+es pedirle al usuario que la seleccione: pulsación larga en la esfera → Neon Grid.
+
 ---
 
 ## 5. Entorno y rutas
@@ -337,20 +388,25 @@ Notas de entorno:
 
 ## 6. Siguiente paso concreto (para el próximo chat)
 
-1. **Probar en el reloj** con *Run on Device* (o `--build` para sacar el AAB) y
-   comparar con la carátula WFF ya instalada: mismos datos, mismos toques, misma
-   posición. Es lo único que no se puede comprobar sin el reloj.
-2. (Opcional) Afinar el Always-On: la fecha sale en magenta sobre negro; para
+1. **Volver a poner la esfera en el reloj** (pulsación larga → Neon Grid) y
+   comprobar que `BCN` marca España y que el texto del evento sigue subido. La
+   versión instalada es la del `versionCode` 27.
+2. Probar en el reloj el proyecto de WFS con *Run on Device* (o `--build` para
+   sacar el AAB) y comparar con la carátula WFF ya instalada.
+3. (Opcional) Afinar el Always-On: la fecha sale en magenta sobre negro; para
    OLED conviene un gris tenue. WFS no tiene color por modo, así que habría que
    duplicar el nodo con `visibleOnAOD` complementario.
-3. (Opcional) La ranura de evento usa `NEXT_EVENT` como proveedor por defecto; en
-   el reloj se puede cambiar por cualquier proveedor de texto corto.
+4. (Opcional) La hora mundial usa el desfase del reloj como constante de
+   compilación (`--device-utc-offset`). Si algún día se confirma que
+   `[TIMEZONE_OFFSET]` (sin `_DST`) sí existe en el runtime, se puede sustituir y
+   la esfera aguantaría cambios de zona horaria del reloj.
 
 Regla de trabajo que ha funcionado: **un cambio, una prueba**. Ahora la prueba es
 barata: `python tools\repack_wfs.py` + `tools\test_wfs.ps1` y mirar
 `build/wfs-test/NeonGrid.preview.png`, `NeonGrid.aod.png`,
 `NeonGrid.xml` y `testmode-summary.json`. Ante un fallo de apertura,
-`%APPDATA%\WatchFaceStudio\dump\renderer.log`.
+`%APPDATA%\WatchFaceStudio\dump\renderer.log`; si la esfera desaparece sola en el
+reloj, `adb logcat` (ver 4.12).
 
 ---
 
@@ -383,6 +439,10 @@ los proyectos de ejemplo, son la fuente de todo lo de la sección 4):
 | `debug_tags.py tags\|actions\|texts` | inventario de etiquetas y acciones de los 12 ejemplos |
 | `debug_app_tags.py WTHR` | busca nombres de etiqueta dentro de `app.asar` |
 | `debug_app_context.py <texto> [radio]` | imprime el código alrededor de un literal |
+| `mock_world_clock.py` | montajes (solo imagen) de dónde poner la hora mundial |
 
-La carátula del reloj está terminada y funcionando. El proyecto de WFS renderiza
-la esfera entera y compila a WFF; falta probarlo en el reloj.
+La carátula del reloj está terminada y funcionando en el reloj, con la hora de
+Barcelona y las manecillas nuevas. El proyecto de WFS renderiza la esfera entera
+y compila a WFF. Lo que queda es **volver a seleccionar la esfera en el reloj**
+(el sistema la devolvió a la de fábrica cuando el runtime murió con la expresión
+mala) y comprobar en pantalla que `BCN` marca la hora correcta.

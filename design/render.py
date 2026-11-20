@@ -203,8 +203,13 @@ def arc_gauge(r, a1, a2, frac, col_a, col_b, bg_a=26):
 
 
 # ---------------- hands ----------------
-def make_hand(length, width, color, tail=14, taper=0.35, hub=None, shape="spear"):
-    """Hand pointing UP (12 o'clock) on a square canvas, pivot at canvas center."""
+def make_hand(length, width, color, tail=14, taper=0.35, hub=None, shape="blade"):
+    """Hand pointing UP (12 o'clock) on a square canvas, pivot at canvas center.
+
+    "blade"  -> tapered blade: pointed spike, chamfered shoulders, a bright spine
+                and a slim skeleton window in the upper third (hour + minute).
+    "needle" -> hairline needle with a tip dot and a disc counterweight (second).
+    """
     lay = new_layer()
     ld = ImageDraw.Draw(lay)
     L = length * K
@@ -212,7 +217,47 @@ def make_hand(length, width, color, tail=14, taper=0.35, hub=None, shape="spear"
     T = tail * K
     cxx, cyy = CX, CY
 
-    if shape == "spear":
+    if shape == "blade":
+        y_tip = cyy - L
+        y_base = cyy + T
+        span = y_base - y_tip
+
+        def half_at(t):
+            """Half width at t (0 = tip, 1 = base): pointed, widest at 75 %."""
+            w = (W / 2.0) * (0.05 + 0.95 * (t ** 0.6))
+            if t > 0.75:
+                w *= 1.0 - 0.55 * (t - 0.75) / 0.25
+            return w
+
+        n = 22
+        right = [(cxx + half_at(i / n), y_tip + span * i / n) for i in range(n + 1)]
+        left = [(cxx - half_at(i / n), y_tip + span * i / n) for i in range(n, -1, -1)]
+        ld.polygon(right + left, fill=color + (255,))
+        # bright spine: the neon "filament" running down the blade
+        ld.line([(cxx, y_tip + span * 0.10), (cxx, y_base - 1.4 * K)],
+                fill=(240, 252, 255, 190), width=max(1, int(0.8 * K)))
+        # segment mark near the tip, like an etched scale
+        ty = y_tip + span * 0.66
+        ld.line([(cxx - half_at(0.66), ty), (cxx + half_at(0.66), ty)],
+                fill=(3, 8, 13, 160), width=max(1, int(0.5 * K)))
+        # rim: dark on the outside so it separates from the dial grid
+        ld.line(right + left, fill=(3, 8, 13, 150), width=max(1, int(0.4 * K)))
+    elif shape == "needle":
+        tip = 2.6 * K
+        # hairline with a slightly wider base and a pointed tip
+        ld.line([(cxx, cyy - L + tip), (cxx, cyy + T)], fill=color + (255,),
+                width=max(1, int(W)))
+        ld.polygon([(cxx, cyy - L), (cxx + tip * 0.55, cyy - L + tip * 1.9),
+                    (cxx - tip * 0.55, cyy - L + tip * 1.9)], fill=color + (255,))
+        # white hot core
+        ld.line([(cxx, cyy - L + tip * 1.4), (cxx, cyy + T * 0.8)],
+                fill=(255, 236, 246, 175), width=max(1, int(W * 0.42)))
+        # counterweight disc + hub ring
+        cr = W * 3.1
+        ld.ellipse([cxx - cr, cyy + T - cr, cxx + cr, cyy + T + cr], fill=color + (255,))
+        ld.ellipse([cxx - cr * 0.52, cyy + T - cr * 0.52, cxx + cr * 0.52, cyy + T + cr * 0.52],
+                   fill=(6, 10, 16, 235))
+    else:  # "spear" (legacy)
         tip_w = 1.4 * K
         shoulder = 0.70 * L
         bw = W * 0.80
@@ -228,24 +273,16 @@ def make_hand(length, width, color, tail=14, taper=0.35, hub=None, shape="spear"
             (cxx - tip_w, cyy - shoulder),
         ]
         ld.polygon(pts, fill=color + (255,))
-        # dark edge for definition against the grid
         ld.line(pts + [pts[0]], fill=(2, 6, 10, 210), width=int(0.45 * K))
-        # lumen line along the hand
         ld.line([(cxx, cyy - L * 0.94), (cxx, cyy + T * 0.75)],
                 fill=(255, 255, 255, 150), width=max(1, int(0.75 * K)))
-    elif shape == "needle":
-        ld.line([(cxx, cyy - L), (cxx, cyy + T)], fill=color + (255,), width=int(W))
-        ld.line([(cxx, cyy - L), (cxx, cyy + T)], fill=(255, 240, 246, 140), width=max(1, int(W * 0.34)))
-        # counterweight
-        ld.ellipse([cxx - W * 1.1, cyy + T - W * 1.1, cxx + W * 1.1, cyy + T + W * 1.1],
-                   fill=color + (255,))
-    return glow(lay, 2.2 if shape == "spear" else 3.2, 1.10)
+    return glow(lay, 2.2 if shape == "blade" else 3.2, 1.10)
 
 
 def make_hub():
     lay = new_layer()
     ld = ImageDraw.Draw(lay)
-    r = 7.5 * K
+    r = 8.6 * K
     ld.ellipse([CX - r, CY - r, CX + r, CY + r], fill=(8, 14, 22, 255), outline=CYAN + (235,), width=int(1.6 * K))
     r2 = 2.6 * K
     ld.ellipse([CX - r2, CY - r2, CX + r2, CY + r2], fill=MAGENTA + (255,))
@@ -280,17 +317,22 @@ LAYOUT = {
     "temp":    {"x": 240, "y": 78,  "size": 30, "ls": 1.0},
     "cond":    {"x": 240, "y": 114, "size": 18, "ls": 0.3},
     "msg_v":   {"x": 152, "y": 188, "size": 30, "ls": 0.0},
-    "evt_v":   {"x": 342, "y": 186, "size": 18, "ls": 0.0},
+    "evt_v":   {"x": 342, "y": 178, "size": 18, "ls": 0.0},
     "bat_v":   {"x": 78,  "y": 228, "size": 30, "ls": 0.0},
     "hr_v":    {"x": 92,  "y": 300, "size": 32, "ls": 0.0},
     "steps_v": {"x": 368, "y": 244, "size": 26, "ls": 0.0},
     "steps_pct": {"x": 380, "y": 268, "size": 15, "ls": 0.0},
     "tminmax": {"x": 240, "y": 142, "size": 16, "ls": 0.3},
+    # world clock under the date: label anchored to the right of the divider,
+    # 24 h value anchored left, so the pair stays centred whatever the hour is
+    "wl_lbl":  {"x": 232, "y": 414, "size": 13, "ls": 0.9, "anchor": "rm"},
+    "wclock":  {"x": 240, "y": 414, "size": 24, "ls": 1.0, "anchor": "lm"},
 }
 
 
 def compose_preview(bg, hour, minute, second, hh=22, mm=47, ss=5, date="VIE 12 SEP",
-                    hr="72", steps="8,240", batt="64", temp="18°", notif="3", evt="2"):
+                    hr="72", steps="8,240", batt="64", temp="18°", notif="3", evt="2",
+                    bcn="16:43"):
     img = bg.copy()
     img = Image.alpha_composite(img, arc_gauge(205, 246, 294, float(str(batt).replace("%","")) / 100.0,
                                               CYAN, MAGENTA))
@@ -341,6 +383,10 @@ def compose_preview(bg, hour, minute, second, hh=22, mm=47, ss=5, date="VIE 12 S
     # --- bottom-right: steps + goal progress ---
     val("steps_v", steps, CYAN)
     val("steps_pct", "34%", CYAN_DIM)
+
+    # --- world clock (Barcelona) under the date ---
+    val("wl_lbl", "BCN", TEXT_DIM)
+    val("wclock", bcn, CYAN)
 
 
     img = Image.alpha_composite(img, glow(lay, 3, 1.22))
@@ -491,9 +537,9 @@ if __name__ == "__main__":
         return base + sfx + ".png"
 
     bg = make_bg()
-    hour = make_hand(112, 7.6, CYAN, tail=15, shape="spear")
-    minute = make_hand(162, 5.6, CYAN, tail=17, shape="spear")
-    second = make_hand(178, 1.7, MAGENTA, tail=26, shape="needle")
+    hour = make_hand(112, 8.2, CYAN, tail=7, shape="blade")
+    minute = make_hand(162, 5.4, CYAN, tail=8, shape="blade")
+    second = make_hand(178, 1.9, MAGENTA, tail=24, shape="needle")
 
     full = compose_preview(bg, hour, minute, second)
     save(full, named("preview_full"))
@@ -510,8 +556,8 @@ if __name__ == "__main__":
 
     # ambient (always-on) variant
     abg = make_bg_ambient()
-    ah = make_hand_ambient(112, 7.0, tail=15, shape="spear")
-    am = make_hand_ambient(162, 5.2, tail=17, shape="spear")
+    ah = make_hand_ambient(112, 7.8, tail=7, shape="blade")
+    am = make_hand_ambient(162, 5.2, tail=8, shape="blade")
     save(abg, named("bg_ambient"))
     hands_amb = {
         "hour": save_hand(ah, "hand_hour_ambient" + sfx),
