@@ -20,7 +20,9 @@ OUT = os.path.join(ROOT, "wfs-project", "NeonGrid.wfs")
 
 SAMPLE = (r"C:\Users\alejo\AppData\Local\Programs\WatchFaceStudio"
           r"\tools\wfs_samples\Minimal_classic_W_B.wfs")
-CANVAS = 480
+CANVAS = 450          # WFS 1.9.9 only accepts 450x450 projects
+DESIGN_CANVAS = 480   # the art is authored at 480
+SCALE = CANVAS / DESIGN_CANVAS
 DRAW = "res/drawable-nodpi"
 LABEL_ID = "ID_MINIMAL_CLASSIC_W_B"   # id already used by buildData.appLabel
 
@@ -115,7 +117,8 @@ def build_model():
         h["visible"] = True
         h["visibleOnAOD"] = typ != "analogHandSec"
         h.pop("conditionalLine", None)
-        set_geom(h, int(g["x"]), int(g["y"]), int(g["w"]), int(g["h"]),
+        set_geom(h, int(round(g["x"] * SCALE)), int(round(g["y"] * SCALE)),
+                 max(1, int(round(g["w"] * SCALE))), max(1, int(round(g["h"] * SCALE))),
                  pivot=(g["pivotX"], g["pivotY"]))
         set_image(h, fname)
         clock["child"].append(h)

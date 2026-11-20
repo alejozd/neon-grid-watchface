@@ -97,19 +97,42 @@ if __name__ == "__main__":
         repack(os.path.join(out_dir, "ZZ_control_sample.wfs"),
                drop_sample_art=False)
     else:
-        from make_wfs_project import build_model, CANVAS  # noqa: E402
+        import io
+        import json
+        from PIL import Image
+
+        from make_wfs_project import CANVAS, DESIGN_CANVAS, SCALE, build_model  # noqa: E402
+
         model = build_model()
-        with open(os.path.join(ROOT, "design", "out", "device-render.png"), "rb") as fh:
-            preview = fh.read()
+        hands = json.load(open(os.path.join(ROOT, "design", "out", "hands.json"),
+                               encoding="utf-8"))
+
+        def load_resized(path, size=None):
+            im = Image.open(path).convert("RGBA")
+            if size:
+                im = im.resize(size, Image.LANCZOS)
+            buf = io.BytesIO()
+            im.save(buf, "PNG", optimize=True)
+            return buf.getvalue()
+
+        # preview scaled to the project canvas
+        preview = load_resized(os.path.join(ROOT, "design", "out", "device-render.png"),
+                               (CANVAS, CANVAS))
+
         shapes = ('<?xml version="1.0" encoding="utf-8"?>\n<WatchFaces>\n'
                   '  <WatchFace shape="CIRCLE" width="%d" height="%d" file="@raw/watchface"/>\n'
                   '</WatchFaces>\n' % (CANVAS, CANVAS)).encode("utf-8")
-        art = {}
-        for fname, src in (("neon_bg.png", "bg.png"),
-                           ("neon_hand_hour.png", "hand_hour.png"),
-                           ("neon_hand_minute.png", "hand_minute.png"),
-                           ("neon_hand_second.png", "hand_second.png")):
-            with open(os.path.join(ROOT, "design", "out", src), "rb") as fh:
-                art[fname] = fh.read()
+
+        art = {
+            "neon_bg.png": load_resized(os.path.join(ROOT, "design", "out", "bg.png"),
+                                        (CANVAS, CANVAS)),
+        }
+        for fname, src, key in (("neon_hand_hour.png", "hand_hour.png", "hour"),
+                                ("neon_hand_minute.png", "hand_minute.png", "minute"),
+                                ("neon_hand_second.png", "hand_second.png", "second")):
+            g = hands[key]
+            size = (max(1, int(round(g["w"] * SCALE))), max(1, int(round(g["h"] * SCALE))))
+            art[fname] = load_resized(os.path.join(ROOT, "design", "out", src), size)
+
         repack(os.path.join(out_dir, "NeonGrid.wfs"),
                model=model, preview=preview, extra=art, shapes=shapes)
