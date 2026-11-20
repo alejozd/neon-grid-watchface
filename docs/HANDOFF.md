@@ -315,33 +315,43 @@ El nodo más complejo del modelo. Lo que hay que respetar:
 - Ojo con los elementos del ejemplo sin `complicationField`: si se mapean al
   texto principal, el XML sale con dos `<PartText>` idénticos superpuestos.
 
-### 4.12 Hora mundial: lo que NO funciona en este reloj
-Tres intentos, dos fallos, todos medidos en el reloj:
+### 4.12 Hora mundial: los cuatro intentos y la causa real
+Esto costó cuatro ciclos de instalación, así que queda escrito:
 
 1. **`<Localization timezone="Europe/Madrid"/>`** (lo que emite WFS para una
    "world clock"): el runtime **lo ignora**. La esfera se pinta, pero la hora
    sale igual que la local. Probado también declarando formato WFF v3 en el
    manifest (por si era cosa de la versión): idéntico.
-2. **`[TIMEZONE_OFFSET_DST]`** (nombre que usa WFS internamente para el desfase
-   con DST): **no es una fuente de datos válida** para el runtime. Al
-   referenciarla, el proceso `com.samsung.wear.watchface.runtime` muere con
-   `java.lang.NullPointerException ... C2.b.F(Z2.f, java.lang.String)` y el
-   sistema vuelve a la esfera de fábrica. Síntoma en el log:
+2. **`[TIMEZONE_OFFSET_DST]`**: no es una fuente de datos del runtime.
+3. **`[DAY_1_31]`**: tampoco. Es el nombre **interno del editor**; en Watch Face
+   Format el día del mes es **`[DAY]`** (`[DAY_Z]`, `[MONTH]`, `[DAY_OF_WEEK]`
+   también son válidos). El runtime tiene 0 apariciones de `DAY_1_31`.
+4. **Comillas sin escapar**: `expression="icuText("HH:mm", …)"` deja el XML mal
+   formado; hay que escribir `&quot;` y `&amp;&amp;` como hace WFS.
 
-   ```
-   E WearServices: [ActiveWatchFaceFacade]WatchFaceId[...] has disappeared twice
-                   in 15000 milliseconds, reverting to the fallback watch face
-   E AndroidRuntime: Process: com.samsung.wear.watchface.runtime
-   ```
+Los tres fallos se manifiestan igual, y por eso se confunden: el proceso
+`com.samsung.wear.watchface.runtime` muere al inicializar y el sistema vuelve a
+la esfera de fábrica:
 
-   Si la esfera "desaparece" sola, **lo primero es mirar ese log**: no es un
-   problema del APK ni de la instalación.
-3. **Lo que sí funciona**: `icuText("HH:mm", [UTC_TIMESTAMP] + desfase)`.
-   `icuText` formatea el instante en la zona **del reloj**, así que el desfase es
-   `España − reloj`. La regla de verano europea se calcula en la expresión con
-   `[MONTH]`, `[DAY_1_31]` y `[DAY_OF_WEEK]` (el día de la semana del 31 se
-   deduce de los de hoy), sin ninguna etiqueta exótica. El desfase del reloj va
-   como constante de compilación: `--device-utc-offset` (por defecto `-5`).
+```
+E WatchFaceService: WatchFace crashed during init
+E WatchFaceService: java.lang.NullPointerException: Attempt to read from field
+                    'java.util.ArrayList Z2.f.b' on a null object reference
+                    in method 'java.util.ArrayList C2.b.F(Z2.f, java.lang.String)'
+E WearServices: [ActiveWatchFaceFacade] WatchFaceId[...] has disappeared twice
+                in 15000 milliseconds, reverting to the fallback watch face
+```
+
+**Antes de instalar**: `python tools\check_wff_tags.py` (comprueba que el XML
+esté bien formado y que el runtime conozca todas las etiquetas) y
+`python tools\check_wfs.py` para el `.wfs`.
+
+**Lo que sí funciona**: `icuText("HH:mm", [UTC_TIMESTAMP] + desfase)`.
+`icuText` formatea el instante en la zona **del reloj**, así que el desfase es
+`España − reloj`. La regla de verano europea se calcula en la expresión con
+`[MONTH]`, `[DAY]` y `[DAY_OF_WEEK]` (el día de la semana del 31 se deduce de
+los de hoy), sin etiquetas exóticas. El desfase del reloj va como constante de
+compilación: `--device-utc-offset` (por defecto `-5`).
 
 En el proyecto de WFS no se puede usar la misma expresión: el editor solo
 entiende `icuText` dentro de un nodo `date`, y un nodo de texto deja
@@ -350,14 +360,20 @@ el `.wfs` usa un nodo `date` con un desfase en horas calculado al empaquetar
 (`spain_utc_offset()` en `make_wfs_project.py`), mientras que el APK lleva la
 regla viva.
 
-### 4.13 Cambiar la esfera activa por adb (a medias)
-No hay comando directo (`cmd wallpaper` solo tiene `set-dim-amount`). Existe un
-broadcast de Samsung, `com.samsung.android.wearable.sysui.action.SET_ACTIVE_WATCH_FACE`,
-que necesita el extra `favoriteId` (entero interno de su lista de favoritos, no
-el paquete). Se probaron `package`, `packageName`, `watch_face_package`,
-`watchFaceId`, `id` y `component`: ninguno cambia la esfera. **Tocar la pantalla
-a ciegas es mala idea** (un `input tap` acabó iniciando una llamada). Lo práctico
-es pedirle al usuario que la seleccione: pulsación larga en la esfera → Neon Grid.
+### 4.13 Cambiar la esfera activa por adb
+No hay comando directo (`cmd wallpaper` solo tiene `set-dim-amount`), pero el
+broadcast de Samsung **sí funciona**:
+
+```powershell
+adb -s <serial> shell am broadcast `
+  -a com.samsung.android.wearable.sysui.action.SET_ACTIVE_WATCH_FACE --ei favoriteId 44
+```
+
+El extra `favoriteId` es el id interno de su lista de favoritos (44 para
+`com.relog.neongrid`; sale en el log `SecWatchFaceOrderRepository2` cada vez que
+se abre el selector). Con `package`, `packageName`, `watchFaceId` o `component`
+no hace nada. **No usar `input tap` a ciegas**: un toque acabó iniciando una
+llamada.
 
 ---
 

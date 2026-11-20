@@ -29,3 +29,6 @@ desktop.ini
 # NOTA: build/keystore/cyber.jks SÍ se versiona a propósito.
 # Es una clave de desarrollo autofirmada, con contraseña conocida y solo para
 # instalar por adb en el reloj propio. Para publicar en Play, usa otra clave.
+
+# APK del runtime del reloj, solo para tools/check_wff_tags.py (no se versiona)
+build/wfrt.apk

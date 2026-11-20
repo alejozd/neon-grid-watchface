@@ -95,16 +95,29 @@ def world_clock_expression():
     derived from today's weekday and day number, so the season is right on the
     device without rebuilding.
     """
-    last_sunday = "32 - (([DAY_OF_WEEK] + 30 - [DAY_1_31]) % 7)"
+    # the day of the month is [DAY] in Watch Face Format; [DAY_1_31] is the
+    # editor's internal name and the runtime does NOT know it (it crashes)
+    last_sunday = "32 - (([DAY_OF_WEEK] + 30 - [DAY]) % 7)"
     summer = ("([MONTH] > 3 && [MONTH] < 10)"
-              " || ([MONTH] == 3 && [DAY_1_31] >= %s)"
-              " || ([MONTH] == 10 && [DAY_1_31] < %s)" % (last_sunday, last_sunday))
+              " || ([MONTH] == 3 && [DAY] >= %s)"
+              " || ([MONTH] == 10 && [DAY] < %s)" % (last_sunday, last_sunday))
     shift = "(%g + (%s ? 1 : 0))" % (WORLD_WINTER - DEVICE_UTC_OFFSET, summer)
     return 'icuText("HH:mm", [UTC_TIMESTAMP] + %s * 3600000)' % shift
 
 
 def esc(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def esc_attr(s):
+    """XML-escape a value that goes inside an attribute.
+
+    Expressions live in `expression="..."`, so quotes (icuText("HH:mm", ...))
+    and `&&` must be escaped; without this the XML is malformed and the runtime
+    dies with a NullPointerException while resolving the "tag" it parsed.
+    """
+    return (s.replace("&", "&amp;").replace("<", "&lt;")
+             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
 def text_part(key, fmt, params, color, box_h=None, indent="    ", mode="active",
@@ -136,7 +149,7 @@ def text_part(key, fmt, params, color, box_h=None, indent="    ", mode="active",
     y = int(round((y_override if y_override is not None else L["y"]) - h / 2))
     ls = round(L.get("ls", 0) / size, 4) if size else 0
     param_xml = "".join(
-        f'\n{indent}          <Parameter expression="{p}"/>' for p in params)
+        f'\n{indent}          <Parameter expression="{esc_attr(p)}"/>' for p in params)
     if mode == "ambient":
         attrs = ' alpha="0"'
         variant = f'{indent}  <Variant mode="AMBIENT" target="alpha" value="255"/>\n'

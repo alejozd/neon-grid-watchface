@@ -198,7 +198,7 @@
       <Text align="LEFT">
         <Font family="monospace" size="24" color="#FF22E7FF" letterSpacing="0.0417" weight="BOLD">
           <Template><![CDATA[%s]]>
-              <Parameter expression="icuText("HH:mm", [UTC_TIMESTAMP] + (6 + (([MONTH] > 3 && [MONTH] < 10) || ([MONTH] == 3 && [DAY_1_31] >= 32 - (([DAY_OF_WEEK] + 30 - [DAY_1_31]) % 7)) || ([MONTH] == 10 && [DAY_1_31] < 32 - (([DAY_OF_WEEK] + 30 - [DAY_1_31]) % 7)) ? 1 : 0)) * 3600000)"/>
+              <Parameter expression="icuText(&quot;HH:mm&quot;, [UTC_TIMESTAMP] + (6 + (([MONTH] &gt; 3 &amp;&amp; [MONTH] &lt; 10) || ([MONTH] == 3 &amp;&amp; [DAY] &gt;= 32 - (([DAY_OF_WEEK] + 30 - [DAY]) % 7)) || ([MONTH] == 10 &amp;&amp; [DAY] &lt; 32 - (([DAY_OF_WEEK] + 30 - [DAY]) % 7)) ? 1 : 0)) * 3600000)"/>
           </Template>
         </Font>
       </Text>
