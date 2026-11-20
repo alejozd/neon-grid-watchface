@@ -199,51 +199,35 @@ def hand(tag, m, resource):
 def events_slot(display=None):
     """Calendar / events complication slot, upper right.
 
-    Shows two lines (title = usually the time of the event, text = the event
-    name) so there is more information than a single chip. LONG_TEXT providers
-    get their own two-line layout.
+    One single, big line: the previous version had a title + text pair at 13/17 px
+    inside a 54 px box, clipped by a <BoundingOval> (the ellipse is narrow in the
+    lower half, so the text lost its sides and only a couple of characters were
+    readable). Now there is no clip mask, the box is wider and the type is 21 px.
+    The event time (TITLE) wins over the text: the calendar provider sends an
+    abbreviated countdown ("7 m") in TEXT, while TITLE carries the full time.
     """
-    # raised: the violet line used to sit too low, so the box starts higher and
-    # the two lines are packed together
-    x, y, w, h = 262, 148, 156, 54
+    x, y, w, h = 250, 154, 190, 48
     return f'''    <ComplicationSlot x="{x}" y="{y}" width="{w}" height="{h}" slotId="7"
         displayName="@string/slot_events" supportedTypes="SHORT_TEXT LONG_TEXT EMPTY">
-      <BoundingOval x="0" y="0" width="{w}" height="{h}"/>
+      <BoundingBox x="0" y="0" width="{w}" height="{h}"/>
+      <DefaultProviderPolicy defaultSystemProvider="NEXT_EVENT" defaultSystemProviderType="SHORT_TEXT"/>
       <Complication type="SHORT_TEXT">
-        <PartText x="0" y="0" width="{w}" height="24">
+        <PartText x="0" y="0" width="{w}" height="{h}">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="{FAMILY}" size="13" color="{DIM}" weight="BOLD">
+            <Font family="{FAMILY}" size="23" color="{VIOLET}" weight="BOLD">
               <Template><![CDATA[%s]]>
-                <Parameter expression="[COMPLICATION.TITLE]"/>
-              </Template>
-            </Font>
-          </Text>
-        </PartText>
-        <PartText x="0" y="22" width="{w}" height="30">
-          <Text align="CENTER" ellipsis="TRUE">
-            <Font family="{FAMILY}" size="17" color="{VIOLET}" weight="BOLD">
-              <Template><![CDATA[%s]]>
-                <Parameter expression="[COMPLICATION.TEXT]"/>
+                <Parameter expression="[COMPLICATION.TITLE] != null ? [COMPLICATION.TITLE] : [COMPLICATION.TEXT]"/>
               </Template>
             </Font>
           </Text>
         </PartText>
       </Complication>
       <Complication type="LONG_TEXT">
-        <PartText x="0" y="0" width="{w}" height="24">
+        <PartText x="0" y="0" width="{w}" height="{h}">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="{FAMILY}" size="12" color="{DIM}" weight="BOLD">
+            <Font family="{FAMILY}" size="19" color="{VIOLET}" weight="BOLD">
               <Template><![CDATA[%s]]>
-                <Parameter expression="[COMPLICATION.LONG_TITLE]"/>
-              </Template>
-            </Font>
-          </Text>
-        </PartText>
-        <PartText x="0" y="22" width="{w}" height="30">
-          <Text align="CENTER" ellipsis="TRUE">
-            <Font family="{FAMILY}" size="15" color="{VIOLET}" weight="BOLD">
-              <Template><![CDATA[%s]]>
-                <Parameter expression="[COMPLICATION.LONG_TEXT]"/>
+                <Parameter expression="[COMPLICATION.LONG_TEXT] != null ? [COMPLICATION.LONG_TEXT] : [COMPLICATION.LONG_TITLE]"/>
               </Template>
             </Font>
           </Text>

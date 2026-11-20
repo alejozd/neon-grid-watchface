@@ -478,7 +478,8 @@ LABELS = [
     ("lbl_bpm",    "BPM",     13.0, TEXT_DIM, 0.9, 88,  276),
     ("lbl_pasos",  "PASOS",   13.0, TEXT_DIM, 0.9, 368, 218),
     ("lbl_msg",    "MSG",     13.0, TEXT_DIM, 0.9, 150, 160),
-    ("lbl_event",  "EVENT",   13.0, TEXT_DIM, 0.9, 330, 154),
+    # la etiqueta EVENT va encima de la ranura de complicacion, no dentro
+    ("lbl_event",  "EVENT",   13.0, TEXT_DIM, 0.9, 352, 138),
 ]
 
 

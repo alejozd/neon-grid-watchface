@@ -382,6 +382,28 @@ el `.wfs` usa un nodo `date` con un desfase en horas calculado al empaquetar
 (`spain_utc_offset()` en `make_wfs_project.py`), mientras que el APK lleva la
 regla viva.
 
+### 4.14 La ranura de evento: recorte, tamaño y enlace
+Lo que se aprendió peleando con la línea del evento:
+
+- **`<BoundingOval>` recorta**. Era la máscara de la ranura; con dos líneas dentro,
+  el texto de abajo perdía los lados. Se sustituyó por `<BoundingBox>`. Aun así,
+  para un dato largo conviene **una sola línea grande**: ahora la caja es
+  `250,154 190x48` y la fuente 23 px (antes 156x54 con 13/17 px en dos líneas).
+- **El proveedor del calendario manda un contador**, no el nombre: cuando falta
+  poco para el evento, el campo corto trae cosas como `6 m`; cuando falta mucho,
+  trae la hora (`12:00 p.m.`). Eso no es un recorte nuestro. El nombre completo
+  solo llega por la variante **long text**.
+- **Cambiar `supportedTypes` o `slotId` rompe el enlace**. Wear Services guarda la
+  configuración del usuario por slot; si el slot pasa a `LONG_TEXT` a secas, o se
+  le cambia el id, la configuración vieja deja de casar y la ranura se queda
+  **vacía**. No se reengancha sola ni con `DefaultProviderPolicy`
+  (`NEXT_EVENT`), ni reinstalando, ni cambiando de esfera y volviendo. Hay que
+  **volver a elegir la complicación a mano**: pulsación larga en la esfera →
+  *Personalizar* → tocar la línea del evento → elegir *Calendario / Próximo
+  evento*. Si algún día se toca el slot, avisar de esto antes de tocar nada.
+- El estado bueno conocido es `slotId="7"`, `supportedTypes="SHORT_TEXT LONG_TEXT
+  EMPTY"`, una línea de 23 px y `<BoundingBox>`.
+
 ### 4.13 Cambiar la esfera activa por adb
 No hay comando directo (`cmd wallpaper` solo tiene `set-dim-amount`), pero el
 broadcast de Samsung **sí funciona**:

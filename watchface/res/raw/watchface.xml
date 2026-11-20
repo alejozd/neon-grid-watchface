@@ -64,7 +64,7 @@
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Image resource="lbl_msg"/>
     </PartImage>
-    <PartImage x="311" y="149" width="38" height="8">
+    <PartImage x="333" y="133" width="38" height="8">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Image resource="lbl_event"/>
     </PartImage>
@@ -222,44 +222,27 @@
       </Text>
     </PartText>
 
-    <ComplicationSlot x="262" y="148" width="156" height="54" slotId="7"
+    <ComplicationSlot x="250" y="154" width="190" height="48" slotId="7"
         displayName="@string/slot_events" supportedTypes="SHORT_TEXT LONG_TEXT EMPTY">
-      <BoundingOval x="0" y="0" width="156" height="54"/>
+      <BoundingBox x="0" y="0" width="190" height="48"/>
+      <DefaultProviderPolicy defaultSystemProvider="NEXT_EVENT" defaultSystemProviderType="SHORT_TEXT"/>
       <Complication type="SHORT_TEXT">
-        <PartText x="0" y="0" width="156" height="24">
+        <PartText x="0" y="0" width="190" height="48">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="monospace" size="13" color="#FF8FB6C9" weight="BOLD">
+            <Font family="monospace" size="23" color="#FFA24BFF" weight="BOLD">
               <Template><![CDATA[%s]]>
-                <Parameter expression="[COMPLICATION.TITLE]"/>
-              </Template>
-            </Font>
-          </Text>
-        </PartText>
-        <PartText x="0" y="22" width="156" height="30">
-          <Text align="CENTER" ellipsis="TRUE">
-            <Font family="monospace" size="17" color="#FFA24BFF" weight="BOLD">
-              <Template><![CDATA[%s]]>
-                <Parameter expression="[COMPLICATION.TEXT]"/>
+                <Parameter expression="[COMPLICATION.TITLE] != null ? [COMPLICATION.TITLE] : [COMPLICATION.TEXT]"/>
               </Template>
             </Font>
           </Text>
         </PartText>
       </Complication>
       <Complication type="LONG_TEXT">
-        <PartText x="0" y="0" width="156" height="24">
+        <PartText x="0" y="0" width="190" height="48">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="monospace" size="12" color="#FF8FB6C9" weight="BOLD">
+            <Font family="monospace" size="19" color="#FFA24BFF" weight="BOLD">
               <Template><![CDATA[%s]]>
-                <Parameter expression="[COMPLICATION.LONG_TITLE]"/>
-              </Template>
-            </Font>
-          </Text>
-        </PartText>
-        <PartText x="0" y="22" width="156" height="30">
-          <Text align="CENTER" ellipsis="TRUE">
-            <Font family="monospace" size="15" color="#FFA24BFF" weight="BOLD">
-              <Template><![CDATA[%s]]>
-                <Parameter expression="[COMPLICATION.LONG_TEXT]"/>
+                <Parameter expression="[COMPLICATION.LONG_TEXT] != null ? [COMPLICATION.LONG_TEXT] : [COMPLICATION.LONG_TITLE]"/>
               </Template>
             </Font>
           </Text>
