@@ -50,6 +50,17 @@ cualquier carátula con hora mundial. Si no hay proveedor enlazado, el `<Default
 del slot pinta la hora de Barcelona calculada (ver 4.12), así que la línea nunca
 queda vacía.
 
+Para cambiarla en el reloj: pulsación larga en la esfera → **Personalizar** →
+tocar la línea de la hora mundial → elegir *Reloj mundial* y la ciudad. Si el
+proveedor arranca con otra ciudad (p. ej. la local), se cambia ahí una vez y
+queda guardado. Sin el `DefaultProviderPolicy` el slot saldría vacío y solo se
+vería el respaldo de Barcelona; con él, el sistema enlaza un proveedor solo.
+
+**Pendiente de ver en pantalla**: el versionCode 29 estaba en el reloj pero se
+puso a cargar antes de poder capturarlo (la depuración inalámbrica se cae al
+apagar la pantalla). Lo comprobado por log: la esfera es la activa y el runtime
+**no** lanzó `WatchFace crashed`.
+
 El bloque del clima (temperatura y máx/mín) va dentro de un `<Condition>` sobre
 `[WEATHER.IS_AVAILABLE]`; cuando el teléfono no ha enviado datos meteorológicos
 el runtime devuelve 0 y la esfera mostraba "0° / 0°", ahora muestra un guion.
