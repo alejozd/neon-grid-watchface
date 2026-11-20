@@ -207,3 +207,30 @@ Antes de publicarlo, revisa que no te importe que esté versionada la clave de f
 desarrollo (`build/keystore/cyber.jks`): es autofirmada y solo sirve para instalar por adb
 en tu propio reloj. Si prefieres no publicarla, borra esa línea del `.gitignore` invertido
 (ejecuta `git rm --cached build/keystore/cyber.jks`) y guarda la clave aparte.
+---
+
+## 9. Proyecto para Watch Face Studio (`wfs-project/NeonGrid.wfs`)
+
+Descubrimiento clave: un archivo `.wfs` **es un ZIP** con `honeyface.json` (el modelo del
+proyecto) y las imágenes en `res/drawable-nodpi/`. WFS trae proyectos de ejemplo en
+`%LOCALAPPDATA%\Programs\WatchFaceStudio\tools\wfs_samples\`, así que el formato es
+reconstruible.
+
+`tools/make_wfs_project.py` genera `wfs-project/NeonGrid.wfs` haciendo *cirugía de
+plantilla* sobre el ejemplo `Minimal_classic_W_B.wfs`: conserva la estructura de nodos de
+un proyecto analógico que ya funciona y le inyecta nuestro arte y geometría.
+
+Contenido actual del proyecto generado:
+
+- Lienzo **480×480**, tipo analogico, forma circular.
+- Capa `bg` con `neon_bg.png` a pantalla completa.
+- `analogClock` con las tres agujas (`neon_hand_hour/minute/second.png`), cada una con su
+  posición, tamaño y pivote exactos.
+
+**Cómo abrirlo:** Watch Face Studio → *File → Open Project* → `wfs-project/NeonGrid.wfs`.
+
+> Es una **primera versión**: lleva fondo y agujas. Los textos y datos (hora, fecha,
+> clima, pasos, pulso, batería, notificaciones, eventos) hay que añadirlos como capas de
+> WFS usando la tabla de [`wfs-assets/SPEC.md`](wfs-assets/SPEC.md). Si el proyecto abre
+> bien, el siguiente paso es extender el generador para crear también esos nodos
+> (`digitalClock`, `date`, `text`, `complication`).
