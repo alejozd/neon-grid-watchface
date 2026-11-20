@@ -176,3 +176,34 @@ build/                  APKs firmados, keystore y capturas del dispositivo
 build.ps1               compilación y firma offline
 install.ps1             instalador guiado por adb
 ```
+
+---
+
+## 8. Publicar en GitHub
+
+El repositorio ya está inicializado y con un primer commit. Falta subirlo a tu cuenta
+(desde aquí no hay salida a internet):
+
+```powershell
+cd C:\Proyectos\relog
+
+# 1) crea el repositorio vacío en github.com (sin README ni licencia)
+#    por ejemplo: https://github.com/alejozd/neon-grid-watchface
+
+# 2) conéctalo y sube
+git remote add origin https://github.com/alejozd/neon-grid-watchface.git
+git branch -M main
+git push -u origin main
+```
+
+Con GitHub CLI instalado (`gh`) también puedes hacerlo todo de una:
+
+```powershell
+gh auth login
+gh repo create neon-grid-watchface --public --source . --remote origin --push
+```
+
+Antes de publicarlo, revisa que no te importe que esté versionada la clave de firma de
+desarrollo (`build/keystore/cyber.jks`): es autofirmada y solo sirve para instalar por adb
+en tu propio reloj. Si prefieres no publicarla, borra esa línea del `.gitignore` invertido
+(ejecuta `git rm --cached build/keystore/cyber.jks`) y guarda la clave aparte.

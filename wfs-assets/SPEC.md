@@ -119,7 +119,7 @@ del tamano justo del numero, no todo el ancho del texto. Destinos **verificados 
 | Temperatura | 196,52,90,54 | `com.samsung.android.watch.weather` | Clima |
 | MSG | 124,160,70,56 | `com.whatsapp` | WhatsApp (lista de chats) |
 | Bateria | 44,206,84,52 | `BATTERY_STATUS` | Ajustes de bateria |
-| BPM | 60,272,76,52 | `com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.heartrate.view.measure.HeartRateMeasureActivity` | Medidor de pulso |
+| BPM | 60,272,76,52 | `com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.heartrate.view.HeartRateActivity` | Pantalla de pulso con el boton "Medir" |
 | Pasos | 326,228,84,52 | `com.samsung.android.wear.shealth/com.samsung.android.wear.shealth.app.steps.view.StepsActivity` | Pantalla de pasos |
 | Fecha | 146,352,190,46 | `com.samsung.android.calendar` | Calendario (dia) |
 | Evento | ranura de complicacion | (lo gestiona el proveedor) | App del calendario |

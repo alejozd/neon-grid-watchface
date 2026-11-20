@@ -19,17 +19,17 @@
     <PartDraw x="0" y="0" width="480" height="480">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Arc centerX="240" centerY="240" width="410" height="410" startAngle="246" endAngle="294">
-        <Stroke thickness="4" color="#3322E7FF" cap="ROUND"/>
+        <Stroke thickness="4" color="#339EE8FF" cap="ROUND"/>
       </Arc>
       <Arc centerX="240" centerY="240" width="410" height="410" startAngle="246" endAngle="294">
-        <Stroke thickness="4" color="#FF22E7FF" cap="ROUND"/>
+        <Stroke thickness="4" color="#FF9EE8FF" cap="ROUND"/>
         <Transform target="endAngle" value="246 + 0.48 * [BATTERY_PERCENT]"/>
       </Arc>
       <Arc centerX="240" centerY="240" width="410" height="410" startAngle="300" endAngle="340">
-        <Stroke thickness="4" color="#33FF2A6D" cap="ROUND"/>
+        <Stroke thickness="4" color="#33568AF0" cap="ROUND"/>
       </Arc>
       <Arc centerX="240" centerY="240" width="410" height="410" startAngle="300" endAngle="340">
-        <Stroke thickness="4" color="#FFFF2A6D" cap="ROUND"/>
+        <Stroke thickness="4" color="#FF568AF0" cap="ROUND"/>
         <Transform target="endAngle" value="300 + 0.40 * [STEP_PERCENT]"/>
       </Arc>
     </PartDraw>
@@ -73,7 +73,7 @@
     <PartText x="350" y="274" width="130" height="32">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="LEFT">
-        <Font family="monospace" size="22" color="#FF22E7FF" letterSpacing="0.0455" weight="BOLD">
+        <Font family="monospace" size="22" color="#FF9EE8FF" letterSpacing="0.0455" weight="BOLD">
           <Template><![CDATA[%s]]>
               <Parameter expression="[SECOND_Z]"/>
           </Template>
@@ -83,7 +83,7 @@
     <PartText x="0" y="254" width="326" height="96">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="RIGHT">
-        <Font family="monospace" size="66" color="#FF22E7FF" letterSpacing="0.0212" weight="BOLD">
+        <Font family="monospace" size="66" color="#FF9EE8FF" letterSpacing="0.0212" weight="BOLD">
           <Template><![CDATA[%s:%s]]>
               <Parameter expression="[HOUR_1_12]"/>
               <Parameter expression="[MINUTE_Z]"/>
@@ -94,7 +94,7 @@
     <PartText x="346" y="307" width="134" height="22">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="LEFT">
-        <Font family="monospace" size="15" color="#FF22E7FF" letterSpacing="0.02" weight="BOLD">
+        <Font family="monospace" size="15" color="#FF9EE8FF" letterSpacing="0.02" weight="BOLD">
           <Template><![CDATA[%s]]>
               <Parameter expression="[AMPM_STRING]"/>
           </Template>
@@ -104,7 +104,7 @@
     <PartText x="0" y="361" width="480" height="38">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="CENTER">
-        <Font family="monospace" size="26" color="#FFFF2A6D" letterSpacing="0.0462" weight="BOLD">
+        <Font family="monospace" size="26" color="#FF568AF0" letterSpacing="0.0462" weight="BOLD">
           <Template><![CDATA[%s %s %s]]>
               <Parameter expression="[DAY_OF_WEEK_S]"/>
               <Parameter expression="[DAY_Z]"/>
@@ -116,7 +116,7 @@
     <PartText x="0" y="56" width="480" height="44">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="CENTER">
-        <Font family="monospace" size="30" color="#FF22E7FF" letterSpacing="0.0333" weight="BOLD">
+        <Font family="monospace" size="30" color="#FF9EE8FF" letterSpacing="0.0333" weight="BOLD">
           <Template><![CDATA[%s°]]>
               <Parameter expression="[WEATHER.TEMPERATURE]"/>
           </Template>
@@ -137,7 +137,7 @@
     <PartText x="132" y="166" width="348" height="44">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="LEFT">
-        <Font family="monospace" size="30" color="#FFFF2A6D" letterSpacing="0.0" weight="BOLD">
+        <Font family="monospace" size="30" color="#FF568AF0" letterSpacing="0.0" weight="BOLD">
           <Template><![CDATA[%s]]>
               <Parameter expression="clamp([UNREAD_NOTIFICATION_COUNT],0,99)"/>
           </Template>
@@ -147,7 +147,7 @@
     <PartText x="52" y="206" width="428" height="44">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="LEFT">
-        <Font family="monospace" size="30" color="#FF22E7FF" letterSpacing="0.0" weight="BOLD">
+        <Font family="monospace" size="30" color="#FF9EE8FF" letterSpacing="0.0" weight="BOLD">
           <Template><![CDATA[%s%%]]>
               <Parameter expression="[BATTERY_PERCENT]"/>
           </Template>
@@ -157,7 +157,7 @@
     <PartText x="72" y="277" width="408" height="46">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="LEFT">
-        <Font family="monospace" size="32" color="#FFFF2A6D" letterSpacing="0.0" weight="BOLD">
+        <Font family="monospace" size="32" color="#FF568AF0" letterSpacing="0.0" weight="BOLD">
           <Template><![CDATA[%s]]>
               <Parameter expression="[HEART_RATE]"/>
           </Template>
@@ -167,7 +167,7 @@
     <PartText x="0" y="225" width="404" height="38">
       <Variant mode="AMBIENT" target="alpha" value="0"/>
       <Text align="RIGHT">
-        <Font family="monospace" size="26" color="#FF22E7FF" letterSpacing="0.0" weight="BOLD">
+        <Font family="monospace" size="26" color="#FF9EE8FF" letterSpacing="0.0" weight="BOLD">
           <Template><![CDATA[%s]]>
               <Parameter expression="[STEP_COUNT]"/>
           </Template>
@@ -200,7 +200,7 @@
         </PartText>
         <PartText x="0" y="28" width="156" height="34">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="monospace" size="17" color="#FFA24BFF" weight="BOLD">
+            <Font family="monospace" size="17" color="#FFD0E4F8" weight="BOLD">
               <Template><![CDATA[%s]]>
                 <Parameter expression="[COMPLICATION.TEXT]"/>
               </Template>
@@ -220,7 +220,7 @@
         </PartText>
         <PartText x="0" y="26" width="156" height="36">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="monospace" size="15" color="#FFA24BFF" weight="BOLD">
+            <Font family="monospace" size="15" color="#FFD0E4F8" weight="BOLD">
               <Template><![CDATA[%s]]>
                 <Parameter expression="[COMPLICATION.LONG_TEXT]"/>
               </Template>
