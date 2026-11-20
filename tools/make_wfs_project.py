@@ -93,7 +93,6 @@ def build_model():
     bg["name"] = "bg"
     bg["visible"] = True
     bg["visibleOnAOD"] = False
-    bg.pop("conditionalLine", None)
     set_geom(bg, 0, 0, CANVAS, CANVAS, pivot=(0, 0))
     set_image(bg, "neon_bg.png")
 
@@ -102,7 +101,6 @@ def build_model():
     clock["name"] = "Hands"
     clock["visible"] = True
     clock["visibleOnAOD"] = True
-    clock.pop("conditionalLine", None)
     clock["child"] = []
 
     for typ, key, fname in (
@@ -116,7 +114,6 @@ def build_model():
         h["name"] = key
         h["visible"] = True
         h["visibleOnAOD"] = typ != "analogHandSec"
-        h.pop("conditionalLine", None)
         set_geom(h, int(round(g["x"] * SCALE)), int(round(g["y"] * SCALE)),
                  max(1, int(round(g["w"] * SCALE))), max(1, int(round(g["h"] * SCALE))),
                  pivot=(g["pivotX"], g["pivotY"]))
