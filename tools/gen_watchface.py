@@ -353,20 +353,48 @@ def weather_block():
             '    </Condition>\n')
 
 
-def world_clock_block():
-    """Barcelona clock as a complication slot: tap it in the watch face editor
-    to pick another city.
+def weather_condition_block():
+    """Maps the integer WEATHER.CONDITION to a Spanish label with <Condition>.
 
-    No DefaultProviderPolicy on purpose: with the policy the system bound a
-    provider that rendered a bare placeholder ("12:00p.m.") instead of the
-    computed Barcelona time, and it also lost the city label. Unbound, the
-    <Default> below always shows BCN + the computed time, and the slot is still
-    customisable, which is what lets the user choose the city.
-
-    Three cases: provider with title (city + time, two lines), provider with
-    text only (one line), and no provider bound -> the computed Barcelona time,
-    so the line is never empty.
+    `<Condition>` is a legal child of `<Scene>` (WFF v2 schema) and picks the
+    first matching <Compare>; <Default> covers UNKNOWN_VALUE (0).
     """
+    lines = []
+    for name, values, _label in WEATHER_LABELS:
+        cond = " || ".join("[WEATHER.CONDITION] == %d" % v for v in values)
+        lines.append('        <Expression name="%s"><![CDATA[%s]]></Expression>\n'
+                     % (name, cond))
+    exprs = "".join(lines)
+
+    compares = []
+    for name, _values, label in WEATHER_LABELS:
+        body = text_part("cond", label, [], DIM, indent="        ")
+        compares.append('      <Compare expression="%s">\n%s      </Compare>\n'
+                        % (name, body))
+    default = ('      <Default>\n%s      </Default>\n'
+               % text_part("cond", "\u2014", [], DIM, indent="        "))
+
+    return ('    <!-- ===== weather condition ===== -->\n'
+            '    <Condition>\n'
+            '      <Expressions>\n' + exprs + '      </Expressions>\n'
+            + "".join(compares) + default + '    </Condition>\n')
+
+
+def world_clock_block():
+    """Barcelona clock as plain text.
+
+    NOTE: the complication-slot variant (world_clock_slot_block, below) is NOT
+    used. Tested on the watch: with DefaultProviderPolicy the system bound a
+    provider that rendered a bare placeholder ("12:00p.m.") instead of the
+    computed time and the city label was lost; without the policy the runtime
+    crashed and the watch fell back to the factory face. See HANDOFF 4.13.
+    """
+    return (text_part("wl_lbl", WORLD_LABEL, [], DIM)
+            + text_part("wclock", "%s", [world_clock_expression()], CYAN))
+
+
+def world_clock_slot_block():
+    """Experimento no usado: ranura de complicacion con reloj mundial."""
     x, y, w, h = WORLD_SLOT
     exp = esc_attr(world_clock_expression())
     return f'''    <ComplicationSlot x="{x}" y="{y}" width="{w}" height="{h}" slotId="{WORLD_SLOT_ID}"
@@ -431,33 +459,6 @@ def world_clock_block():
       </Complication>
     </ComplicationSlot>
 '''
-
-
-def weather_condition_block():
-    """Maps the integer WEATHER.CONDITION to a Spanish label with <Condition>.
-
-    `<Condition>` is a legal child of `<Scene>` (WFF v2 schema) and picks the
-    first matching <Compare>; <Default> covers UNKNOWN_VALUE (0).
-    """
-    lines = []
-    for name, values, _label in WEATHER_LABELS:
-        cond = " || ".join("[WEATHER.CONDITION] == %d" % v for v in values)
-        lines.append('        <Expression name="%s"><![CDATA[%s]]></Expression>\n'
-                     % (name, cond))
-    exprs = "".join(lines)
-
-    compares = []
-    for name, _values, label in WEATHER_LABELS:
-        body = text_part("cond", label, [], DIM, indent="        ")
-        compares.append('      <Compare expression="%s">\n%s      </Compare>\n'
-                        % (name, body))
-    default = ('      <Default>\n%s      </Default>\n'
-               % text_part("cond", "\u2014", [], DIM, indent="        "))
-
-    return ('    <!-- ===== weather condition ===== -->\n'
-            '    <Condition>\n'
-            '      <Expressions>\n' + exprs + '      </Expressions>\n'
-            + "".join(compares) + default + '    </Condition>\n')
 
 
 def build_xml(fmt=2, with_events=True, with_weather=True, with_ambient=True, h12=True,

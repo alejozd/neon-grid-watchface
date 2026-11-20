@@ -24,16 +24,17 @@ instala como cualquier esfera (sección **Descargados** del selector).
 | Izquierda | Batería con `%` | `[BATTERY_PERCENT]` |
 | Abajo izq. | Ritmo cardíaco | `[HEART_RATE]` |
 | Abajo der. | Pasos + % de la meta diaria | `[STEP_COUNT]`, `[STEP_PERCENT]` |
-| Bajo la fecha | Hora mundial en una **complicación**: cámbiala (y la ciudad) desde la personalización de la esfera. Sin proveedor muestra Barcelona calculada | `ComplicationSlot` + `WORLD_CLOCK`, respaldo con `icuText(...)` |
+| Bajo la fecha | Hora mundial (`BCN`) en 24 h, con horario de verano | `icuText("HH:mm", [UTC_TIMESTAMP] + desfase)` |
 | Medidores | Arco izquierdo = batería; arco superior = meta de pasos | `Transform target="endAngle"` con `[BATTERY_PERCENT]` y `[STEP_PERCENT]` |
 | Always On | Fondo negro, agujas grises, solo hora y fecha | `Variant mode="AMBIENT"` |
 
 La hora se puede cambiar a **24 h** con una bandera (`--h24`), ver §5.
 
-La **hora mundial** mantiene la lógica de Barcelona mientras no le asignes otra
-ciudad: el reloj parte de su hora local y le suma la diferencia con España, que
-el XML deriva de la fecha usando la regla europea (último domingo de marzo a
-último domingo de octubre), así que cambia sola con el horario de verano. Como el
+La **hora mundial** se calcula en el reloj: parte de su hora local y le suma la
+diferencia con España, que el XML deriva de la fecha usando la regla europea
+(último domingo de marzo a último domingo de octubre), así que cambia sola con el
+horario de verano. (Se intentó que fuera una complicación elegible con ciudad;
+ver docs/HANDOFF.md 4.13: el runtime no lo soporta bien en este reloj.) Como el
 desfase depende de la zona del reloj, al compilar se indica con
 `--device-utc-offset` (por defecto `-5`, Bogotá):
 

@@ -43,16 +43,16 @@ ranura de evento (complicación), batería %, pulso, pasos + %, dos arcos-medido
 reales (batería 246→294, pasos 300→340), etiquetas de 13 px y la **hora mundial**
 en una ranura de complicación centrada bajo la fecha (y=386..420).
 
-La hora mundial es un `<ComplicationSlot slotId="3">` **sin**
-`DefaultProviderPolicy`. Probado con política (`defaultSystemProvider="WORLD_CLOCK"`):
-el sistema enlazaba un proveedor que pintaba un marcador sin ciudad
-(`12:00p.m.`) en lugar de la hora de Barcelona, y se perdía la etiqueta. Sin
-política, el `<Default>` del slot pinta `BCN` + la hora calculada (ver 4.12) y la
-ranura sigue siendo personalizable, que es lo que permite elegir ciudad.
+La hora mundial es **texto plano** otra vez: `BCN` en gris + la hora calculada
+(ver 4.12) en cian, centrada bajo la fecha (y=400).
 
-Para cambiarla en el reloj: pulsación larga en la esfera → **Personalizar** →
-tocar la línea de la hora mundial → elegir el proveedor de *reloj mundial* (la app
-es `com.samsung.android.watch.worldclock`) y la ciudad.
+Se intentó convertirla en ranura de complicación (`slotId="3"`) para que el
+usuario eligiera ciudad. **No funcionó y se revirtió** (ver 4.13): con
+`DefaultProviderPolicy defaultSystemProvider="WORLD_CLOCK"` el sistema enlazaba
+un proveedor que pintaba un marcador sin ciudad (`12:00p.m.`) en vez de la hora,
+y al quitar la política el runtime se caía y el reloj volvía a la esfera de
+fábrica. La función `world_clock_slot_block()` queda en el generador, sin usar,
+como punto de partida para retomarlo.
 
 El bloque del clima (temperatura y máx/mín) va dentro de un `<Condition>` sobre
 `[WEATHER.IS_AVAILABLE]`; cuando el teléfono no ha enviado datos meteorológicos

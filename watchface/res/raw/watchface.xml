@@ -202,67 +202,25 @@
         </Font>
       </Text>
     </PartText>
-    <ComplicationSlot x="155" y="386" width="170" height="34" slotId="3"
-        displayName="@string/slot_world" supportedTypes="SHORT_TEXT">
-      <BoundingBox x="0" y="0" width="170" height="34"/>
-      <Complication type="SHORT_TEXT">
-        <Condition>
-          <Expressions>
-            <Expression name="text_only"><![CDATA[[COMPLICATION.TITLE] == null && [COMPLICATION.TEXT] != null]]></Expression>
-            <Expression name="with_title"><![CDATA[[COMPLICATION.TITLE] != null]]></Expression>
-          </Expressions>
-          <Compare expression="text_only">
-            <PartText x="0" y="0" width="170" height="34">
-              <Text align="CENTER" ellipsis="TRUE">
-                <Font family="monospace" size="20" color="#FF22E7FF" weight="BOLD">
-                  <Template><![CDATA[%s]]>
-                    <Parameter expression="[COMPLICATION.TEXT]"/>
-                  </Template>
-                </Font>
-              </Text>
-            </PartText>
-          </Compare>
-          <Compare expression="with_title">
-            <PartText x="0" y="1" width="170" height="14">
-              <Text align="CENTER" ellipsis="TRUE">
-                <Font family="monospace" size="11" color="#FF8FB6C9" weight="BOLD">
-                  <Template><![CDATA[%s]]>
-                    <Parameter expression="[COMPLICATION.TITLE]"/>
-                  </Template>
-                </Font>
-              </Text>
-            </PartText>
-            <PartText x="0" y="15" width="170" height="21">
-              <Text align="CENTER" ellipsis="TRUE">
-                <Font family="monospace" size="17" color="#FF22E7FF" weight="BOLD">
-                  <Template><![CDATA[%s]]>
-                    <Parameter expression="[COMPLICATION.TEXT]"/>
-                  </Template>
-                </Font>
-              </Text>
-            </PartText>
-          </Compare>
-          <Default>
-            <PartText x="0" y="0" width="78" height="34">
-              <Text align="END" ellipsis="FALSE">
-                <Font family="monospace" size="13" color="#FF8FB6C9" weight="BOLD">
-                  <Template><![CDATA[BCN]]></Template>
-                </Font>
-              </Text>
-            </PartText>
-            <PartText x="82" y="0" width="88" height="34">
-              <Text align="START" ellipsis="FALSE">
-                <Font family="monospace" size="24" color="#FF22E7FF" weight="BOLD">
-                  <Template><![CDATA[%s]]>
-                    <Parameter expression="icuText(&quot;HH:mm&quot;, [UTC_TIMESTAMP] + (6 + (([MONTH] &gt; 3 &amp;&amp; [MONTH] &lt; 10) || ([MONTH] == 3 &amp;&amp; [DAY] &gt;= 32 - (([DAY_OF_WEEK] + 30 - [DAY]) % 7)) || ([MONTH] == 10 &amp;&amp; [DAY] &lt; 32 - (([DAY_OF_WEEK] + 30 - [DAY]) % 7)) ? 1 : 0)) * 3600000)"/>
-                  </Template>
-                </Font>
-              </Text>
-            </PartText>
-          </Default>
-        </Condition>
-      </Complication>
-    </ComplicationSlot>
+    <PartText x="0" y="390" width="232" height="19">
+      <Variant mode="AMBIENT" target="alpha" value="0"/>
+      <Text align="RIGHT">
+        <Font family="monospace" size="13" color="#FF8FB6C9" letterSpacing="0.0692" weight="BOLD">
+          <Template><![CDATA[BCN]]>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+    <PartText x="240" y="382" width="240" height="35">
+      <Variant mode="AMBIENT" target="alpha" value="0"/>
+      <Text align="LEFT">
+        <Font family="monospace" size="24" color="#FF22E7FF" letterSpacing="0.0417" weight="BOLD">
+          <Template><![CDATA[%s]]>
+              <Parameter expression="icuText(&quot;HH:mm&quot;, [UTC_TIMESTAMP] + (6 + (([MONTH] &gt; 3 &amp;&amp; [MONTH] &lt; 10) || ([MONTH] == 3 &amp;&amp; [DAY] &gt;= 32 - (([DAY_OF_WEEK] + 30 - [DAY]) % 7)) || ([MONTH] == 10 &amp;&amp; [DAY] &lt; 32 - (([DAY_OF_WEEK] + 30 - [DAY]) % 7)) ? 1 : 0)) * 3600000)"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
 
     <ComplicationSlot x="262" y="148" width="156" height="54" slotId="7"
         displayName="@string/slot_events" supportedTypes="SHORT_TEXT LONG_TEXT EMPTY">
