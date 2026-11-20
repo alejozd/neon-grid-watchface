@@ -43,23 +43,16 @@ ranura de evento (complicación), batería %, pulso, pasos + %, dos arcos-medido
 reales (batería 246→294, pasos 300→340), etiquetas de 13 px y la **hora mundial**
 en una ranura de complicación centrada bajo la fecha (y=386..420).
 
-La hora mundial es un `<ComplicationSlot slotId="3">` con
-`DefaultProviderPolicy defaultSystemProvider="WORLD_CLOCK"`: el usuario puede
-cambiarla (ciudad incluida) desde la personalización de la esfera, como en
-cualquier carátula con hora mundial. Si no hay proveedor enlazado, el `<Default>`
-del slot pinta la hora de Barcelona calculada (ver 4.12), así que la línea nunca
-queda vacía.
+La hora mundial es un `<ComplicationSlot slotId="3">` **sin**
+`DefaultProviderPolicy`. Probado con política (`defaultSystemProvider="WORLD_CLOCK"`):
+el sistema enlazaba un proveedor que pintaba un marcador sin ciudad
+(`12:00p.m.`) en lugar de la hora de Barcelona, y se perdía la etiqueta. Sin
+política, el `<Default>` del slot pinta `BCN` + la hora calculada (ver 4.12) y la
+ranura sigue siendo personalizable, que es lo que permite elegir ciudad.
 
 Para cambiarla en el reloj: pulsación larga en la esfera → **Personalizar** →
-tocar la línea de la hora mundial → elegir *Reloj mundial* y la ciudad. Si el
-proveedor arranca con otra ciudad (p. ej. la local), se cambia ahí una vez y
-queda guardado. Sin el `DefaultProviderPolicy` el slot saldría vacío y solo se
-vería el respaldo de Barcelona; con él, el sistema enlaza un proveedor solo.
-
-**Pendiente de ver en pantalla**: el versionCode 29 estaba en el reloj pero se
-puso a cargar antes de poder capturarlo (la depuración inalámbrica se cae al
-apagar la pantalla). Lo comprobado por log: la esfera es la activa y el runtime
-**no** lanzó `WatchFace crashed`.
+tocar la línea de la hora mundial → elegir el proveedor de *reloj mundial* (la app
+es `com.samsung.android.watch.worldclock`) y la ciudad.
 
 El bloque del clima (temperatura y máx/mín) va dentro de un `<Condition>` sobre
 `[WEATHER.IS_AVAILABLE]`; cuando el teléfono no ha enviado datos meteorológicos

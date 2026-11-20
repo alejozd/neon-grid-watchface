@@ -355,7 +355,13 @@ def weather_block():
 
 def world_clock_block():
     """Barcelona clock as a complication slot: tap it in the watch face editor
-    to pick another city (the system binds a world clock provider).
+    to pick another city.
+
+    No DefaultProviderPolicy on purpose: with the policy the system bound a
+    provider that rendered a bare placeholder ("12:00p.m.") instead of the
+    computed Barcelona time, and it also lost the city label. Unbound, the
+    <Default> below always shows BCN + the computed time, and the slot is still
+    customisable, which is what lets the user choose the city.
 
     Three cases: provider with title (city + time, two lines), provider with
     text only (one line), and no provider bound -> the computed Barcelona time,
@@ -366,7 +372,6 @@ def world_clock_block():
     return f'''    <ComplicationSlot x="{x}" y="{y}" width="{w}" height="{h}" slotId="{WORLD_SLOT_ID}"
         displayName="@string/slot_world" supportedTypes="SHORT_TEXT">
       <BoundingBox x="0" y="0" width="{w}" height="{h}"/>
-      <DefaultProviderPolicy defaultSystemProvider="WORLD_CLOCK" defaultSystemProviderType="SHORT_TEXT"/>
       <Complication type="SHORT_TEXT">
         <Condition>
           <Expressions>

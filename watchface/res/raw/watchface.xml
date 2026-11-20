@@ -205,7 +205,6 @@
     <ComplicationSlot x="155" y="386" width="170" height="34" slotId="3"
         displayName="@string/slot_world" supportedTypes="SHORT_TEXT">
       <BoundingBox x="0" y="0" width="170" height="34"/>
-      <DefaultProviderPolicy defaultSystemProvider="WORLD_CLOCK" defaultSystemProviderType="SHORT_TEXT"/>
       <Complication type="SHORT_TEXT">
         <Condition>
           <Expressions>
