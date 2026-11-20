@@ -83,6 +83,10 @@ ALIGN = {
 # the last Sunday of October) and the device offset is the constant below.
 WORLD_TZ = "Europe/Madrid"
 WORLD_LABEL = "BCN"
+# complication slot box (design px) where the world clock sits, and its slot id
+# (7 is taken by the events slot)
+WORLD_SLOT = (155, 386, 170, 34)
+WORLD_SLOT_ID = 3
 WORLD_WINTER = 1           # CET
 WORLD_SUMMER = 2           # CEST
 DEVICE_UTC_OFFSET = -5     # Bogota; override with --device-utc-offset
@@ -325,6 +329,105 @@ WEATHER_LABELS = [
 ]
 
 
+def weather_block():
+    """Temperature + daily min/max, hidden behind WEATHER.IS_AVAILABLE.
+
+    When the phone has not pushed weather data, the runtime reports 0 for
+    [WEATHER.TEMPERATURE] and the face used to show "0° / 0°"; with the guard it
+    shows a single dim dash instead.
+    """
+    return ('    <Condition>\n'
+            '      <Expressions>\n'
+            '        <Expression name="wx_ok"><![CDATA[[WEATHER.IS_AVAILABLE]]]></Expression>\n'
+            '      </Expressions>\n'
+            '      <Compare expression="wx_ok">\n'
+            + text_part("temp", "%s\u00b0", ["[WEATHER.TEMPERATURE]"], CYAN,
+                        indent="        ")
+            + text_part("tminmax", "%s\u00b0 / %s\u00b0",
+                        ["[WEATHER.DAY_TEMPERATURE_HIGH]",
+                         "[WEATHER.DAY_TEMPERATURE_LOW]"], DIM, indent="        ")
+            + '      </Compare>\n'
+            '      <Default>\n'
+            + text_part("temp", "\u2014", [], DIM, indent="        ")
+            + '      </Default>\n'
+            '    </Condition>\n')
+
+
+def world_clock_block():
+    """Barcelona clock as a complication slot: tap it in the watch face editor
+    to pick another city (the system binds a world clock provider).
+
+    Three cases: provider with title (city + time, two lines), provider with
+    text only (one line), and no provider bound -> the computed Barcelona time,
+    so the line is never empty.
+    """
+    x, y, w, h = WORLD_SLOT
+    exp = esc_attr(world_clock_expression())
+    return f'''    <ComplicationSlot x="{x}" y="{y}" width="{w}" height="{h}" slotId="{WORLD_SLOT_ID}"
+        displayName="@string/slot_world" supportedTypes="SHORT_TEXT">
+      <BoundingBox x="0" y="0" width="{w}" height="{h}"/>
+      <DefaultProviderPolicy defaultSystemProvider="WORLD_CLOCK" defaultSystemProviderType="SHORT_TEXT"/>
+      <Complication type="SHORT_TEXT">
+        <Condition>
+          <Expressions>
+            <Expression name="text_only"><![CDATA[[COMPLICATION.TITLE] == null && [COMPLICATION.TEXT] != null]]></Expression>
+            <Expression name="with_title"><![CDATA[[COMPLICATION.TITLE] != null]]></Expression>
+          </Expressions>
+          <Compare expression="text_only">
+            <PartText x="0" y="0" width="{w}" height="{h}">
+              <Text align="CENTER" ellipsis="TRUE">
+                <Font family="{FAMILY}" size="20" color="{CYAN}" weight="BOLD">
+                  <Template><![CDATA[%s]]>
+                    <Parameter expression="[COMPLICATION.TEXT]"/>
+                  </Template>
+                </Font>
+              </Text>
+            </PartText>
+          </Compare>
+          <Compare expression="with_title">
+            <PartText x="0" y="1" width="{w}" height="14">
+              <Text align="CENTER" ellipsis="TRUE">
+                <Font family="{FAMILY}" size="11" color="{DIM}" weight="BOLD">
+                  <Template><![CDATA[%s]]>
+                    <Parameter expression="[COMPLICATION.TITLE]"/>
+                  </Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText x="0" y="15" width="{w}" height="21">
+              <Text align="CENTER" ellipsis="TRUE">
+                <Font family="{FAMILY}" size="17" color="{CYAN}" weight="BOLD">
+                  <Template><![CDATA[%s]]>
+                    <Parameter expression="[COMPLICATION.TEXT]"/>
+                  </Template>
+                </Font>
+              </Text>
+            </PartText>
+          </Compare>
+          <Default>
+            <PartText x="0" y="0" width="78" height="{h}">
+              <Text align="END" ellipsis="FALSE">
+                <Font family="{FAMILY}" size="13" color="{DIM}" weight="BOLD">
+                  <Template><![CDATA[{WORLD_LABEL}]]></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText x="82" y="0" width="{w - 82}" height="{h}">
+              <Text align="START" ellipsis="FALSE">
+                <Font family="{FAMILY}" size="24" color="{CYAN}" weight="BOLD">
+                  <Template><![CDATA[%s]]>
+                    <Parameter expression="{exp}"/>
+                  </Template>
+                </Font>
+              </Text>
+            </PartText>
+          </Default>
+        </Condition>
+      </Complication>
+    </ComplicationSlot>
+'''
+
+
 def weather_condition_block():
     """Maps the integer WEATHER.CONDITION to a Spanish label with <Condition>.
 
@@ -368,13 +471,11 @@ def build_xml(fmt=2, with_events=True, with_weather=True, with_ambient=True, h12
                            ["[DAY_OF_WEEK_S]", "[DAY_Z]", "[MONTH_S]"], MAGENTA))
 
     if with_weather:
-        parts.append(text_part("temp", "%s\u00b0", ["[WEATHER.TEMPERATURE]"], CYAN))
-        parts.append(text_part("tminmax", "%s\u00b0 / %s\u00b0",
-                               ["[WEATHER.DAY_TEMPERATURE_HIGH]", "[WEATHER.DAY_TEMPERATURE_LOW]"],
-                               DIM))
-        # NOTE: WEATHER.CONDITION_NAME renders empty on this firmware, so the
-        # condition is derived from the integer WEATHER.CONDITION instead (see
-        # weather_condition_block below).
+        # guarded by WEATHER.IS_AVAILABLE so a phone without weather data shows a
+        # dash instead of "0° / 0°" (see weather_block below); NOTE:
+        # WEATHER.CONDITION_NAME renders empty on this firmware, so the condition
+        # label is derived from the integer WEATHER.CONDITION instead.
+        parts.append(weather_block())
 
     parts.append(text_part("msg_v", "%s", ["clamp([UNREAD_NOTIFICATION_COUNT],0,99)"], MAGENTA))
     parts.append(text_part("bat_v", "%s%%", ["[BATTERY_PERCENT]"], CYAN))
@@ -382,9 +483,9 @@ def build_xml(fmt=2, with_events=True, with_weather=True, with_ambient=True, h12
     parts.append(text_part("steps_v", "%s", ["[STEP_COUNT]"], CYAN))
     parts.append(text_part("steps_pct", "%s%%", ["[STEP_PERCENT]"], DIM))
 
-    # world clock (Barcelona) under the date, 24 h
-    parts.append(text_part("wl_lbl", WORLD_LABEL, [], DIM))
-    parts.append(text_part("wclock", "%s", [world_clock_expression()], CYAN))
+    # world clock under the date: complication slot (pick the city by tapping it
+    # in the editor) with the computed Barcelona time as fallback
+    parts.append(world_clock_block())
 
     hud = "".join(parts)
     labels = label_parts(load(os.path.join("labels", "labels.json")))
@@ -515,6 +616,7 @@ STRINGS = '''<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="watch_face_name">{label}</string>
   <string name="slot_events">{slot_events}</string>
+  <string name="slot_world">{slot_world}</string>
 </resources>
 '''
 
@@ -556,6 +658,7 @@ def main():
     ap.add_argument("--package", default="com.relog.neongrid")
     ap.add_argument("--label", default="Neon Grid")
     ap.add_argument("--slot-events", default="Eventos")
+    ap.add_argument("--slot-world", default="Hora mundial")
     ap.add_argument("--device-utc-offset", type=float, default=-5.0,
                     help="UTC offset of the watch, in hours (Bogota = -5); the "
                          "world clock shift is Spain minus this")
@@ -601,7 +704,8 @@ def main():
     with open(os.path.join(RES, "xml", "watch_face_info.xml"), "w", encoding="utf-8") as fh:
         fh.write(WATCH_FACE_INFO)
     with open(os.path.join(RES, "values", "strings.xml"), "w", encoding="utf-8") as fh:
-        fh.write(STRINGS.format(label=args.label, slot_events=args.slot_events))
+        fh.write(STRINGS.format(label=args.label, slot_events=args.slot_events,
+                                slot_world=args.slot_world))
 
     # preview for the picker: prefer the real device render over the mock
     dev = os.path.join(OUT, "device-render" + sfx + ".png")

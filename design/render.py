@@ -313,7 +313,7 @@ LAYOUT = {
     "time":    {"x": 326, "y": 302, "size": 66, "ls": 1.4, "anchor": "rm"},
     "sec":     {"x": 362, "y": 290, "size": 22, "ls": 1.0},
     "ampm":    {"x": 360, "y": 318, "size": 15, "ls": 0.3},
-    "date":    {"x": 240, "y": 380, "size": 26, "ls": 1.2},
+    "date":    {"x": 240, "y": 366, "size": 26, "ls": 1.2},
     "temp":    {"x": 240, "y": 78,  "size": 30, "ls": 1.0},
     "cond":    {"x": 240, "y": 114, "size": 18, "ls": 0.3},
     "msg_v":   {"x": 152, "y": 188, "size": 30, "ls": 0.0},
@@ -325,8 +325,8 @@ LAYOUT = {
     "tminmax": {"x": 240, "y": 142, "size": 16, "ls": 0.3},
     # world clock under the date: label anchored to the right of the divider,
     # 24 h value anchored left, so the pair stays centred whatever the hour is
-    "wl_lbl":  {"x": 232, "y": 414, "size": 13, "ls": 0.9, "anchor": "rm"},
-    "wclock":  {"x": 240, "y": 414, "size": 24, "ls": 1.0, "anchor": "lm"},
+    "wl_lbl":  {"x": 232, "y": 400, "size": 13, "ls": 0.9, "anchor": "rm"},
+    "wclock":  {"x": 240, "y": 400, "size": 24, "ls": 1.0, "anchor": "lm"},
 }
 
 

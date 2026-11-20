@@ -38,10 +38,21 @@ Versión actual: **2.4** (versionCode 27). Firma: `build/keystore/cyber.jks`
 
 ### Contenido de la esfera
 Hora 12 h en cian (66 px, anclada a la derecha en x=326), AM/PM, segundero,
-fecha 26 px, temperatura 30 px, condición, máx/mín, contador MSG, ranura de
-evento (complicación), batería %, pulso, pasos + %, dos arcos-medidor reales
-(batería 246→294, pasos 300→340), etiquetas de 13 px y la **hora de Barcelona**
-(`BCN 16:43`, 24 h) centrada bajo la fecha.
+fecha 26 px (y=366), temperatura 30 px, condición, máx/mín, contador MSG,
+ranura de evento (complicación), batería %, pulso, pasos + %, dos arcos-medidor
+reales (batería 246→294, pasos 300→340), etiquetas de 13 px y la **hora mundial**
+en una ranura de complicación centrada bajo la fecha (y=386..420).
+
+La hora mundial es un `<ComplicationSlot slotId="3">` con
+`DefaultProviderPolicy defaultSystemProvider="WORLD_CLOCK"`: el usuario puede
+cambiarla (ciudad incluida) desde la personalización de la esfera, como en
+cualquier carátula con hora mundial. Si no hay proveedor enlazado, el `<Default>`
+del slot pinta la hora de Barcelona calculada (ver 4.12), así que la línea nunca
+queda vacía.
+
+El bloque del clima (temperatura y máx/mín) va dentro de un `<Condition>` sobre
+`[WEATHER.IS_AVAILABLE]`; cuando el teléfono no ha enviado datos meteorológicos
+el runtime devuelve 0 y la esfera mostraba "0° / 0°", ahora muestra un guion.
 
 Manecillas: agujas `blade` (afiladas, con espina luminosa y muesca cerca de la
 punta) y segundero `needle` con contrapeso magenta; la base queda escondida tras
@@ -398,7 +409,10 @@ Notas de entorno:
   del workspace) y **cada llamada debe ser autocontenida**: el daemon de adb
   muere entre llamadas por el sandbox.
 - El usuario **activa la depuración inalámbrica** cuando hace falta y pasa el
-  puerto nuevo; el emparejamiento ya está hecho.
+  puerto nuevo; el emparejamiento ya está hecho. **El puerto cambia** cada vez
+  que se reactiva (y se cae al apagar la pantalla o salir del Wi-Fi): si `adb
+  connect` responde `10061 connection refused`, hay que pedir el puerto nuevo.
+  El comando de reconexión es `adb connect <ip>:<puerto>`.
 
 ---
 

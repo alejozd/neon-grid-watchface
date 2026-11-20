@@ -2,4 +2,5 @@
 <resources>
   <string name="watch_face_name">Neon Grid</string>
   <string name="slot_events">Eventos</string>
+  <string name="slot_world">Hora mundial</string>
 </resources>
