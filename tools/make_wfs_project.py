@@ -123,6 +123,12 @@ def build_model():
     scene["child"] = [bg, clock]
     scene["name"] = "Root"
 
+    # every container must agree with the canvas, otherwise WFS reports
+    # "Unsupported project size": the root group and the analog clock keep the
+    # 450x450 geometry they had in the sample.
+    set_geom(scene, 0, 0, CANVAS, CANVAS, pivot=(0, 0))
+    set_geom(clock, 0, 0, CANVAS, CANVAS)
+
     st = model["settings"]
     st["width"] = CANVAS
     st["height"] = CANVAS
@@ -132,6 +138,8 @@ def build_model():
     # the sample ships a bitmap font whose glyphs we do not copy over
     st["bitmapFonts"] = {}
     st["customFonts"] = []
+    st["defaultBitmapFont"] = {"type": "system", "value": "SYNC_TO_DEVICE",
+                               "name": "Sync to Device"}
 
     # keep string ids consistent with buildData.appLabel
     model["stringResource"] = {"default": {LABEL_ID: "Neon Grid"}}
