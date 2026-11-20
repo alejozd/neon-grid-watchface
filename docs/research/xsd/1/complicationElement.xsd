@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Verbatim copy of:
+ https://raw.githubusercontent.com/google/watchface/main/third_party/wff/specification/documents/1/complication/complicationElement.xsd
+ (Apache-2.0 header comment block elided)
+ KEY FACT: in version 1 the complicationType enum has only these 7 values --
+           SHORT_TEXT, LONG_TEXT, MONOCHROMATIC_IMAGE, SMALL_IMAGE, PHOTO_IMAGE,
+           RANGED_VALUE, EMPTY.
+           GOAL_PROGRESS and WEIGHTED_ELEMENTS do NOT exist in version 1.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="../group/part/partElementGroup.xsd"/>
+  <xs:include schemaLocation="../common/conditionElement.xsd"/>
+
+  <xs:simpleType name="complicationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SHORT_TEXT"/>
+      <xs:enumeration value="LONG_TEXT"/>
+      <xs:enumeration value="MONOCHROMATIC_IMAGE"/>
+      <xs:enumeration value="SMALL_IMAGE"/>
+      <xs:enumeration value="PHOTO_IMAGE"/>
+      <xs:enumeration value="RANGED_VALUE"/>
+      <xs:enumeration value="EMPTY"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="Complication">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:group ref="PartElementGroup" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Group" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Condition" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+      <xs:attribute name="type" type="complicationType" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

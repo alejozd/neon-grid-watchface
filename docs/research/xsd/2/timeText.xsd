@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Verbatim copy of:
+ https://raw.githubusercontent.com/google/watchface/main/third_party/wff/specification/documents/2/clock/timeText.xsd
+ (Apache-2.0 header comment block elided)
+ KEY FACT: version 2 ADDS the single-digit forms. The pattern becomes
+   h{2}\_(1\d|1)|m{2}\_(1\d|1)|s{2}\_(1\d|1)|((h{1,2})\:m{1,2}\:s{1,2}|(h{1,2})\:m{1,2})|(h{1,2})|m{1,2}|s{1,2}
+ so `hh_1`, `hh_10`, `mm_1`, `mm_10`, `ss_1`, `ss_10` are version-2-only.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="../group/renderModeType.xsd"/>
+  <xs:include schemaLocation="../common/attributes/geometricAttributes.xsd"/>
+  <xs:include schemaLocation="../common/transform/pivotType.xsd"/>
+  <xs:include schemaLocation="../common/variant/variantElements.xsd" />
+  <xs:include schemaLocation="../common/attributes/colorAttributes.xsd"/>
+  <xs:include schemaLocation="../common/attributes/angleType.xsd"/>
+  <xs:include schemaLocation="../common/attributes/alignmentAttribute.xsd"/>
+
+  <xs:element name="TimeText">
+    <xs:annotation>
+      <xs:documentation>
+        TimeText renders the time within the DigitalClock container.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Variant" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:choice minOccurs="0" maxOccurs="1">
+          <xs:element name="BitmapFont">
+            <xs:complexType mixed="true">
+              <xs:attribute name="family" type="xs:string" use="required"/>
+              <xs:attribute name="size" type="xs:float" use="required"/>
+              <xs:attribute name="color" type="colorAttributeType" default="#FFFFFF"/>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element name="Font">
+            <xs:complexType mixed="true">
+              <xs:attribute name="family" type="xs:string" use="required"/>
+              <xs:attribute name="size" type="xs:float" use="required"/>
+              <xs:attribute name="color" type="colorAttributeType" default="#FFFFFF"/>
+              <xs:attribute name="slant" default="NORMAL">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="NORMAL"/>
+                    <xs:enumeration value="ITALIC"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+              <xs:attribute name="width" default="NORMAL">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="ULTRA_CONDENSED"/>
+                    <xs:enumeration value="EXTRA_CONDENSED"/>
+                    <xs:enumeration value="CONDENSED"/>
+                    <xs:enumeration value="SEMI_CONDENSED"/>
+                    <xs:enumeration value="NORMAL"/>
+                    <xs:enumeration value="SEMI_EXPANDED"/>
+                    <xs:enumeration value="EXPANDED"/>
+                    <xs:enumeration value="EXTRA_EXPANDED"/>
+                    <xs:enumeration value="ULTRA_EXPANDED"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+              <xs:attribute name="weight" default="NORMAL">
+                <xs:simpleType>
+                  <!--https://developer.android.com/reference/android/graphics/Typeface#create(android.graphics.Typeface,%20int,%20boolean)-->
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="THIN"/>
+                    <xs:enumeration value="ULTRA_LIGHT"/>
+                    <xs:enumeration value="EXTRA_LIGHT"/>
+                    <xs:enumeration value="LIGHT"/>
+                    <xs:enumeration value="NORMAL"/>
+                    <xs:enumeration value="MEDIUM"/>
+                    <xs:enumeration value="SEMI_BOLD"/>
+                    <xs:enumeration value="BOLD"/>
+                    <xs:enumeration value="ULTRA_BOLD"/>
+                    <xs:enumeration value="EXTRA_BOLD"/>
+                    <xs:enumeration value="BLACK"/>
+                    <xs:enumeration value="EXTRA_BLACK"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:sequence>
+
+      <xs:attribute name="format" type="timeFormatType" use="required"/>
+      <xs:attribute name="hourFormat" type="hourFormatType" default="SYNC_TO_DEVICE"/>
+      <xs:attribute ref="align"/>
+
+      <xs:attributeGroup ref="geometricAttributesRequired"/>
+      <xs:attributeGroup ref="pivot2D"/>
+      <xs:attribute name="angle" type="angleType"/>
+      <xs:attribute ref="alpha"/>
+      <xs:attribute name="tintColor" type='colorAttributeType'/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="hourFormatType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="12"/>
+      <xs:enumeration value="24"/>
+      <xs:enumeration value="SYNC_TO_DEVICE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="timeFormatType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="h{2}\_(1\d|1)|m{2}\_(1\d|1)|s{2}\_(1\d|1)|((h{1,2})\:m{1,2}\:s{1,2}|(h{1,2})\:m{1,2})|(h{1,2})|m{1,2}|s{1,2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

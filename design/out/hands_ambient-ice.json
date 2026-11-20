@@ -1,0 +1,20 @@
+{
+  "hour": {
+    "file": "hand_hour_ambient-ice.png",
+    "x": 231.0,
+    "y": 124.0,
+    "w": 18,
+    "h": 137,
+    "pivotX": 0.5,
+    "pivotY": 0.846715
+  },
+  "minute": {
+    "file": "hand_minute_ambient-ice.png",
+    "x": 231.75,
+    "y": 74.0,
+    "w": 16,
+    "h": 189,
+    "pivotX": 0.5,
+    "pivotY": 0.878307
+  }
+}

@@ -1,0 +1,24 @@
+# --- Artefactos de compilación (se regeneran con build.ps1) ---
+build/*.idsig
+build/resources.zip
+build/*-unsigned.apk
+build/*-aligned.apk
+build/keep-watchface.xml
+build/watchface-v*.xml
+build/face-*.png
+build/hr-screen.png
+build/resolver.png
+
+# --- Intermedios de Python ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Sistema ---
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# NOTA: build/keystore/cyber.jks SÍ se versiona a propósito.
+# Es una clave de desarrollo autofirmada, con contraseña conocida y solo para
+# instalar por adb en el reloj propio. Para publicar en Play, usa otra clave.

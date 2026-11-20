@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DEBUG 3: isolate (a) letterSpacing/weight, (b) family=monospace, (c) Variant inside Group -->
+<WatchFace width="480" height="480">
+  <Metadata key="CLOCK_TYPE" value="ANALOG"/>
+  <Scene backgroundColor="#FF101820">
+
+    <PartImage x="0" y="0" width="480" height="480">
+      <Image resource="bg_ambient"/>
+    </PartImage>
+
+    <AnalogClock x="0" y="0" width="480" height="480">
+      <HourHand resource="hand_hour_ambient" x="231.0" y="124.0" width="18" height="137"
+          pivotX="0.5" pivotY="0.846715"/>
+      <MinuteHand resource="hand_minute_ambient" x="231.75" y="74.0" width="16" height="189"
+          pivotX="0.5" pivotY="0.878307"/>
+    </AnalogClock>
+
+    <!-- G1: weight + letterSpacing, default family -->
+    <PartText x="0" y="40" width="480" height="50">
+      <Text align="CENTER">
+        <Font family="SYNC_TO_DEVICE" size="26" color="#FFFFFFFF"
+              letterSpacing="0.05" weight="BOLD">G1-WEIGHT-LS</Font>
+      </Text>
+    </PartText>
+
+    <!-- G2: family=monospace, no weight/ls -->
+    <PartText x="0" y="100" width="480" height="50">
+      <Text align="CENTER">
+        <Font family="monospace" size="26" color="#FF22E7FF">G2-MONO</Font>
+      </Text>
+    </PartText>
+
+    <!-- G3: family=monospace + weight + letterSpacing -->
+    <PartText x="0" y="160" width="480" height="50">
+      <Text align="CENTER">
+        <Font family="monospace" size="26" color="#FFFF2A6D"
+              letterSpacing="0.05" weight="BOLD">G3-MONO-BOLD-LS</Font>
+      </Text>
+    </PartText>
+
+    <!-- G4: text inside a Group that has an AMBIENT Variant -->
+    <Group x="0" y="220" width="480" height="60" name="g4">
+      <Variant mode="AMBIENT" target="alpha" value="0"/>
+      <PartText x="0" y="0" width="480" height="60">
+        <Text align="CENTER">
+          <Font family="SYNC_TO_DEVICE" size="26" color="#FFFFB020">G4-VARIANT-GROUP</Font>
+        </Text>
+      </PartText>
+    </Group>
+
+    <!-- G5: text inside a Group with alpha="255" + Variant -->
+    <Group x="0" y="300" width="480" height="60" name="g5" alpha="255">
+      <Variant mode="AMBIENT" target="alpha" value="0"/>
+      <PartText x="0" y="0" width="480" height="60">
+        <Text align="CENTER">
+          <Font family="SYNC_TO_DEVICE" size="26" color="#FFA24BFF">G5-ALPHA255-VAR</Font>
+        </Text>
+      </PartText>
+    </Group>
+
+    <!-- G6: Parameter inside a Group with Variant -->
+    <Group x="0" y="380" width="480" height="60" name="g6">
+      <Variant mode="AMBIENT" target="alpha" value="0"/>
+      <PartText x="0" y="0" width="480" height="60">
+        <Text align="CENTER">
+          <Font family="SYNC_TO_DEVICE" size="26" color="#FF35D07F">
+            <Template><![CDATA[G6=%s]]>
+              <Parameter expression="[SECOND]"/>
+            </Template>
+          </Font>
+        </Text>
+      </PartText>
+    </Group>
+
+  </Scene>
+</WatchFace>

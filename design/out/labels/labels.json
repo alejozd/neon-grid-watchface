@@ -1,0 +1,37 @@
+{
+  "lbl_bat": {
+    "file": "lbl_bat.png",
+    "x": 67.0,
+    "y": 197.0,
+    "w": 22,
+    "h": 8
+  },
+  "lbl_bpm": {
+    "file": "lbl_bpm.png",
+    "x": 77.0,
+    "y": 271.0,
+    "w": 22,
+    "h": 8
+  },
+  "lbl_pasos": {
+    "file": "lbl_pasos.png",
+    "x": 348.8,
+    "y": 212.8,
+    "w": 38,
+    "h": 9
+  },
+  "lbl_msg": {
+    "file": "lbl_msg.png",
+    "x": 138.5,
+    "y": 154.8,
+    "w": 23,
+    "h": 9
+  },
+  "lbl_event": {
+    "file": "lbl_event.png",
+    "x": 311.0,
+    "y": 149.0,
+    "w": 38,
+    "h": 8
+  }
+}

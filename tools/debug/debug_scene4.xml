@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DEBUG 4: monospace vs system font, with and without Template -->
+<WatchFace width="480" height="480">
+  <Metadata key="CLOCK_TYPE" value="ANALOG"/>
+  <Scene backgroundColor="#FF101820">
+
+    <PartImage x="0" y="0" width="480" height="480">
+      <Image resource="bg_ambient"/>
+    </PartImage>
+
+    <AnalogClock x="0" y="0" width="480" height="480">
+      <HourHand resource="hand_hour_ambient" x="231.0" y="124.0" width="18" height="137"
+          pivotX="0.5" pivotY="0.846715"/>
+      <MinuteHand resource="hand_minute_ambient" x="231.75" y="74.0" width="16" height="189"
+          pivotX="0.5" pivotY="0.878307"/>
+    </AnalogClock>
+
+    <!-- X1: monospace + Template + Parameter -->
+    <PartText x="0" y="40" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="monospace" size="26" color="#FFFFFFFF">
+          <Template><![CDATA[X1=%s]]>
+            <Parameter expression="[SECOND]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <!-- X2: monospace plain text (control) -->
+    <PartText x="0" y="110" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="monospace" size="26" color="#FF22E7FF">X2-MONO-PLAIN</Font>
+      </Text>
+    </PartText>
+
+    <!-- X3: system font + Template + Parameter (control) -->
+    <PartText x="0" y="180" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="SYNC_TO_DEVICE" size="26" color="#FFFF2A6D">
+          <Template><![CDATA[X3=%s]]>
+            <Parameter expression="[SECOND]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <!-- X4: EXACT real part: monospace, size 20, letterSpacing, BOLD, "%s" -->
+    <PartText x="160.0" y="250" width="160" height="29">
+      <Text align="CENTER">
+        <Font family="monospace" size="20" color="#FFFFB020" letterSpacing="0.13" weight="BOLD">
+          <Template><![CDATA[%s]]>
+            <Parameter expression="[SECOND_Z]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <!-- X5: same as X4 but system font -->
+    <PartText x="160.0" y="320" width="160" height="29">
+      <Text align="CENTER">
+        <Font family="SYNC_TO_DEVICE" size="20" color="#FFA24BFF" letterSpacing="0.13" weight="BOLD">
+          <Template><![CDATA[%s]]>
+            <Parameter expression="[SECOND_Z]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <!-- X6: system font, big size 56, height 81 -->
+    <PartText x="16.0" y="380" width="448" height="81">
+      <Text align="CENTER">
+        <Font family="SYNC_TO_DEVICE" size="56" color="#FF35D07F" letterSpacing="0.0357" weight="BOLD">
+          <Template><![CDATA[%s:%s]]>
+            <Parameter expression="[HOUR_0_23_Z]"/>
+            <Parameter expression="[MINUTE_Z]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+  </Scene>
+</WatchFace>

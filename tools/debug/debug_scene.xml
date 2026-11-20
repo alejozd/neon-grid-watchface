@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DEBUG scene: each text is a direct child of Scene, all at known y positions -->
+<WatchFace width="480" height="480">
+  <Metadata key="CLOCK_TYPE" value="DIGITAL"/>
+  <Scene backgroundColor="#FF000000">
+
+    <PartText x="0" y="40" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="monospace" size="40" color="#FFFFFFFF">
+          <Template><![CDATA[LIT-OK]]></Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <PartText x="0" y="100" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="monospace" size="40" color="#FFFF2A6D">
+          <Template><![CDATA[%s]]>
+            <Parameter expression="[SECOND_Z]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <PartText x="0" y="160" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="monospace" size="40" color="#FF22E7FF">
+          <Template><![CDATA[%s]]>
+            <Parameter expression="[BATTERY_PERCENT]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <PartText x="0" y="220" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="monospace" size="40" color="#FFA24BFF">
+          <Template><![CDATA[%s:%s]]>
+            <Parameter expression="[HOUR_0_23_Z]"/>
+            <Parameter expression="[MINUTE_Z]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <PartText x="0" y="280" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="SYNC_TO_DEVICE" size="40" color="#FFFFB020">
+          <Template><![CDATA[%s]]>
+            <Parameter expression="[STEP_COUNT]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <PartText x="0" y="340" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="SYNC_TO_DEVICE" size="40" color="#FF35D07F">
+          <Template><![CDATA[S=%s]]>
+            <Parameter expression="[SECOND_Z]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <PartText x="0" y="400" width="480" height="50">
+      <Text>
+        <Font family="SYNC_TO_DEVICE" size="28" color="#FF888888">
+          <Template><![CDATA[TXT-%s]]>
+            <Parameter expression="[MINUTE_Z]"/>
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <PartImage x="200" y="450" width="80" height="24">
+      <Image resource="lbl_msg"/>
+    </PartImage>
+
+  </Scene>
+</WatchFace>

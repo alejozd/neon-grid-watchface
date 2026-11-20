@@ -1,0 +1,29 @@
+{
+  "hour": {
+    "file": "hand_hour-gold.png",
+    "x": 230.75,
+    "y": 124.0,
+    "w": 18,
+    "h": 137,
+    "pivotX": 0.5,
+    "pivotY": 0.846715
+  },
+  "minute": {
+    "file": "hand_minute-gold.png",
+    "x": 232.0,
+    "y": 74.0,
+    "w": 16,
+    "h": 189,
+    "pivotX": 0.492308,
+    "pivotY": 0.878307
+  },
+  "second": {
+    "file": "hand_second-gold.png",
+    "x": 230.0,
+    "y": 55.0,
+    "w": 20,
+    "h": 220,
+    "pivotX": 0.5,
+    "pivotY": 0.839955
+  }
+}

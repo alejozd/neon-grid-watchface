@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DEBUG 5: horizontal alignment semantics -->
+<WatchFace width="480" height="480">
+  <Metadata key="CLOCK_TYPE" value="ANALOG"/>
+  <Scene backgroundColor="#FF101820">
+
+    <PartImage x="0" y="0" width="480" height="480">
+      <Image resource="bg_ambient"/>
+    </PartImage>
+
+    <!-- reference markers: baked labels at known x -->
+    <PartImage x="100" y="20" width="20" height="7">
+      <Image resource="lbl_msg"/>
+    </PartImage>
+    <PartImage x="380" y="20" width="20" height="7">
+      <Image resource="lbl_msg"/>
+    </PartImage>
+
+    <!-- A: box x=100 w=280, align LEFT -->
+    <PartText x="100" y="100" width="280" height="60">
+      <Text align="LEFT">
+        <Font family="SYNC_TO_DEVICE" size="34" color="#FFFFFFFF">AAAA</Font>
+      </Text>
+    </PartText>
+
+    <!-- B: same box, align CENTER -->
+    <PartText x="100" y="200" width="280" height="60">
+      <Text align="CENTER">
+        <Font family="SYNC_TO_DEVICE" size="34" color="#FF22E7FF">BBBB</Font>
+      </Text>
+    </PartText>
+
+    <!-- C: same box, align RIGHT -->
+    <PartText x="100" y="300" width="280" height="60">
+      <Text align="RIGHT">
+        <Font family="SYNC_TO_DEVICE" size="34" color="#FFFF2A6D">CCCC</Font>
+      </Text>
+    </PartText>
+
+    <!-- D: full width box, align CENTER (control) -->
+    <PartText x="0" y="400" width="480" height="60">
+      <Text align="CENTER">
+        <Font family="SYNC_TO_DEVICE" size="34" color="#FFFFB020">DDDD</Font>
+      </Text>
+    </PartText>
+
+  </Scene>
+</WatchFace>
